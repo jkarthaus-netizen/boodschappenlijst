@@ -1,0 +1,1627 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2e7d46">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Boodschappenlijstje">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Ons Boodschappenlijstje</title>
+<style>
+  :root{
+    --bg:#f4f2ed; --card:#ffffff; --ink:#1c2420; --muted:#7c8680; --line:#e5e1d9;
+    --accent:#2e7d46; --accent-soft:#e6f2e8; --danger:#b3402f; --warn:#8a6d1f;
+    --head-h:52px; --tabs-h:48px;
+    font-size:16px;
+  }
+  *{ box-sizing:border-box; }
+  html{
+    -webkit-text-size-adjust:100%; text-size-adjust:100%;
+    scroll-padding-top:calc(var(--tabs-h) + 10px);
+  }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:60px;
+    padding-bottom:calc(var(--head-h) + 30px);
+  }
+  header.top{
+    position:fixed; bottom:0; left:0; right:0; z-index:30;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:rgba(255,255,255,.96); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    padding:10px 14px;
+    padding-left:max(14px, env(safe-area-inset-left,0px));
+    padding-right:max(14px, env(safe-area-inset-right,0px));
+    padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
+    border-top:1px solid var(--line);
+  }
+  .brand{ font-weight:800; font-size:1.05rem; letter-spacing:-.02em; }
+  .brand span{ color:var(--accent); }
+  .vbadge{
+    font-size:.68rem; font-weight:800; color:var(--muted);
+    background:#eef1ee; border-radius:99px; padding:2px 8px; vertical-align:middle;
+  }
+  .top-actions{ display:flex; gap:8px; }
+  nav.tabs{
+    position:sticky; top:0; z-index:29;
+    display:flex; overflow-x:auto; -webkit-overflow-scrolling:touch;
+    background:rgba(255,255,255,.94); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line); padding:0 6px;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-left:max(6px, env(safe-area-inset-left,0px));
+    padding-right:max(6px, env(safe-area-inset-right,0px));
+  }
+  .tabbtn{
+    appearance:none; border:0; background:transparent; cursor:pointer;
+    font:inherit; color:var(--muted); padding:12px 12px 10px;
+    border-bottom:3px solid transparent; white-space:nowrap; display:flex; gap:6px; align-items:center;
+  }
+  .tabbtn.active{ color:var(--ink); font-weight:700; border-bottom-color:var(--accent); }
+  .badge{
+    background:var(--accent); color:#fff; font-size:.7rem; font-weight:800;
+    border-radius:99px; padding:1px 7px; min-width:18px; text-align:center;
+  }
+  .badge.zero{ background:#cfd6d0; }
+  main{ max-width:780px; margin:0 auto; padding:14px 14px 0; padding-left:max(14px, env(safe-area-inset-left,0px)); padding-right:max(14px, env(safe-area-inset-right,0px)); }
+  button{ -webkit-tap-highlight-color:transparent; touch-action:manipulation; -webkit-user-select:none; user-select:none; }
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:14px 16px; margin:0 0 14px; box-shadow:0 1px 2px rgba(28,36,32,.04);
+  }
+  .card h2{ margin:0 0 4px; font-size:1.02rem; }
+  .card .hint{ color:var(--muted); font-size:.85rem; margin:0 0 10px; }
+  .btn{
+    appearance:none; font:inherit; cursor:pointer; border-radius:12px; border:1px solid var(--line);
+    background:#fff; color:var(--ink); padding:9px 14px; font-weight:600;
+    display:inline-flex; align-items:center; gap:7px; justify-content:center;
+  }
+  .btn:active{ transform:scale(.98); }
+  .btn.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .btn.danger{ color:var(--danger); border-color:#e8c8c2; background:#fdf6f4; }
+  .btn.small{ padding:6px 10px; font-size:.85rem; border-radius:10px; }
+  .btn.big{ width:100%; font-size:1.05rem; padding:14px; }
+  .btn:disabled{ opacity:.5; cursor:default; }
+  input[type=text], select, textarea{
+    font:inherit; color:var(--ink); background:#fff;
+    border:1px solid var(--line); border-radius:10px; padding:9px 10px; min-width:0;
+  }
+  input[type=text]:focus, select:focus{ outline:2px solid var(--accent-soft); border-color:var(--accent); }
+  .field label{ display:block; font-size:.8rem; font-weight:700; color:var(--muted); margin:0 0 4px; }
+  .recchecks{ display:flex; flex-direction:column; gap:7px; }
+  .chk{ display:flex; align-items:center; gap:8px; font-size:.95rem; cursor:pointer; }
+  .chk input[type=checkbox]{ width:20px; height:20px; accent-color:var(--accent); margin:0; }
+  .field{ margin-bottom:10px; }
+  .field input, .field select{ width:100%; }
+  .rowflex{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .chipbtn{
+    font:inherit; cursor:pointer; background:var(--accent-soft); color:var(--ink);
+    border:1px solid #cfe4d3; border-radius:14px; padding:8px 12px; font-weight:600; margin:0 6px 6px 0;
+    display:inline-flex; gap:8px; align-items:center;
+  }
+  .chipbtn .cnt{ background:rgba(46,125,70,.15); border-radius:99px; padding:1px 8px; font-size:.75rem; }
+  .search{ width:100%; margin-bottom:8px; }
+  .result{
+    width:100%; text-align:left; font:inherit; background:#fff; border:1px solid var(--line);
+    border-radius:12px; padding:9px 12px; margin-bottom:6px; cursor:pointer;
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+  }
+  .result:active{ background:var(--accent-soft); }
+  .result .meta{ color:var(--muted); font-size:.8rem; }
+  .itemrow{
+    display:flex; align-items:flex-start; gap:10px; padding:10px 2px; border-bottom:1px solid var(--line);
+  }
+  .itemrow .iconbtn{ font-size:1.8rem; padding:6px 13px; border-radius:12px; line-height:1; }
+  #prodRows .itemrow .iconbtn{ font-size:.9rem; padding:3px 6px; border-radius:8px; line-height:1; }
+  .shopitem .iconbtn{ font-size:1.8rem; padding:6px 13px; border-radius:12px; line-height:1; }
+  .itemrow:last-child{ border-bottom:0; }
+  .itemrow .qty{ display:flex; gap:4px; align-items:center; flex:0 0 auto; }
+  .itemrow .qty input{ width:64px; text-align:right; }
+  .itemrow .qty input.unit{ width:74px; text-align:left; font-size:max(.85rem,16px); }
+  .itemrow .body{ min-width:0; flex:1; }
+  .itemrow .nameinput{ width:100%; font-weight:700; }
+  .sub{ color:var(--muted); font-size:.78rem; margin-top:2px; display:flex; flex-wrap:wrap; gap:4px 6px; }
+  .tag{ background:#eef1ee; border-radius:99px; padding:1px 8px; font-size:.72rem; }
+  .itemrow .note{ flex:1; min-width:110px; }
+  .iconbtn{
+    appearance:none; border:1px solid var(--line); background:#fff; cursor:pointer;
+    border-radius:10px; padding:7px 9px; font-size:.9rem; flex:0 0 auto; color:var(--ink);
+  }
+  .iconbtn.danger{ color:var(--danger); }
+  .shopgroup{ margin-bottom:18px; }
+  .shopgroup > h4{
+    margin:0 0 6px; font-size:.85rem; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--muted); display:flex; align-items:center; gap:8px;
+  }
+  .locgroup h3{
+    position:sticky; top:calc(var(--tabs-h)); z-index:5;
+    margin:0; padding:8px 10px; font-size:.95rem;
+    background:#fff; border-bottom:2px solid var(--accent); display:flex; align-items:center; gap:9px;
+  }
+  .locnr{
+    background:var(--accent); color:#fff; border-radius:8px; min-width:26px; height:26px;
+    display:inline-flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:800;
+  }
+  .locgroup.noloc h3{ border-bottom-color:#cfd6d0; }
+  .locgroup.noloc .locnr{ background:#9aa59e; }
+  .shopitem{
+    display:flex; align-items:flex-start; gap:12px; padding:12px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  .shopitem input[type=checkbox]{
+    width:26px; height:26px; flex:0 0 auto; margin:0; accent-color:var(--accent);
+  }
+  .shopitem .body{ flex:1; min-width:0; }
+  .shopitem .aantal{ color:var(--accent); font-weight:800; white-space:nowrap; }
+  .shopitem.done .body{ text-decoration:line-through; }
+  .shopitem.done{ opacity:.55; }
+  .note{ color:var(--warn); font-size:.85rem; }
+  .shophead{ display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+  .bar{ flex:1; min-width:120px; height:10px; background:#e8e5df; border-radius:99px; overflow:hidden; }
+  .bar > div{ height:100%; background:var(--accent); width:0%; transition:width .2s; }
+  #progressText{ font-weight:800; font-size:.9rem; }
+  .empty{ text-align:center; color:var(--muted); padding:30px 10px; }
+  .empty .big{ font-size:2.2rem; display:block; margin-bottom:8px; }
+  .loclist li{ display:flex; gap:6px; align-items:center; padding:5px 0; }
+  .loclist{ list-style:none; margin:0; padding:0; }
+  .loclist .locnr{ min-width:22px; height:22px; font-size:.72rem; }
+  .loclist input[type=text]{ flex:1; }
+  .rcard{ margin-bottom:14px; }
+  .mover{ display:flex; flex-direction:row; gap:4px; flex:0 0 auto; }
+  .iconbtn.ghost{ visibility:hidden; }
+  .rhead{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .rhead input{ font-weight:700; }
+  .rrow{ display:flex; gap:6px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
+  .rrow select{ flex:2; min-width:170px; }
+  .rrow input[data-f=name]{ flex:2; min-width:150px; font-weight:600; }
+  .rrow input[data-f=amount]{ width:70px; text-align:right; }
+  .rrow input[data-f=unit]{ width:74px; }
+  .rrow input[data-f=comment]{ flex:1; min-width:110px; }
+  .overlay{
+    position:fixed; inset:0; background:rgba(20,26,22,.45); z-index:50;
+    display:flex; align-items:flex-end; justify-content:center; padding:0;
+  }
+  @media(min-width:560px){ .overlay{ align-items:center; padding:20px; } }
+  .modalcard{
+    background:#fff; border-radius:20px 20px 0 0; padding:18px; width:100%; max-width:520px;
+    max-height:86vh; overflow:auto; -webkit-overflow-scrolling:touch;
+    padding-bottom:calc(18px + env(safe-area-inset-bottom,0px));
+  }
+  @supports (height:1dvh){ .modalcard{ max-height:86dvh; } }
+  @media(min-width:560px){ .modalcard{ border-radius:20px; } }
+  .modalcard h3{ margin:0 0 14px; }
+  .modalactions{ display:flex; gap:10px; margin-top:14px; }
+  .modalactions .btn{ flex:1; }
+  .menuwindow button{ width:100%; margin-bottom:8px; }
+  #toast{
+    position:fixed; left:50%; bottom:22px;
+    bottom:calc(var(--head-h) + 30px); transform:translateX(-50%);
+    background:var(--ink); color:#fff; border-radius:12px; padding:10px 16px; font-size:.9rem;
+    opacity:0; transition:opacity .25s; z-index:60; pointer-events:none; max-width:85vw; text-align:center;
+  }
+  #toast.show{ opacity:.95; }
+  .dim{ color:var(--muted); }
+  hr.sep{ border:0; border-top:1px solid var(--line); margin:14px 0; }
+  .syncdot{
+    width:11px; height:11px; border-radius:99px; background:#cfd6d0;
+    display:none; flex:0 0 auto; align-self:center; cursor:pointer;
+  }
+  /* iPhone: compacte kop op kleine schermen (iPhone SE, 375pt) */
+  @media (max-width:429px){
+    .brand{ font-size:1rem; }
+    .top-actions .btn.small{ padding:6px 9px; }
+    .svtxt{ display:none; }
+  }
+  /* iPhone: ruimere tekst op grote toestellen (iPhone 16 Pro Max, 440pt) */
+  @media (min-width:430px){ :root{ font-size:17px; } }
+</style>
+</head>
+<body>
+<nav class="tabs" id="tabs">
+  <button class="tabbtn" data-tab="lijst">📝 Bestellen <span class="badge zero" id="b-lijst">0</span></button>
+  <button class="tabbtn" data-tab="route">🧭 Boodschappenlijst <span class="badge zero" id="b-route">0</span></button>
+  <button class="tabbtn" data-tab="producten">📦 Producten</button>
+  <button class="tabbtn" data-tab="recepten">🍲 Ingrediëntenlijsten</button>
+  <button class="tabbtn" data-tab="winkels">🏪 Winkels &amp; route</button>
+</nav>
+<main id="view"></main>
+<header class="top">
+  <div class="brand">🛒 Ons <span>Boodschappenlijstje</span> <span class="vbadge" id="versionBadge">v26</span></div>
+  <div class="top-actions">
+    <span class="syncdot" id="syncdot"></span>
+    <button class="btn primary small" id="saveAppBtn" title="Sla dit bestand inclusief alle lijsten op als HTML">💾 <span class="svtxt">Opslaan</span></button>
+    <button class="btn small" id="menuBtn" title="Gegevens &amp; help">⋯</button>
+  </div>
+</header>
+<datalist id="units">
+  <option>stuk</option><option>stuks</option><option>gram</option><option>kg</option>
+  <option>liter</option><option>ml</option><option>pak</option><option>pakken</option>
+  <option>pakje</option><option>pakjes</option><option>fles</option><option>flessen</option>
+  <option>flesje</option><option>flesjes</option><option>blik</option><option>blikken</option>
+  <option>blikje</option><option>blikjes</option><option>doos</option><option>dozen</option>
+  <option>zak</option><option>zakken</option><option>zakje</option><option>zakjes</option>
+  <option>pot</option><option>potten</option><option>potje</option><option>potjes</option>
+  <option>bakje</option><option>bakjes</option><option>beker</option><option>bekers</option>
+  <option>kuipje</option><option>kuipjes</option><option>broodje</option><option>broodjes</option>
+  <option>bol</option><option>bollen</option><option>plak</option><option>plakken</option>
+  <option>snee</option><option>sneetjes</option><option>bos</option><option>bossen</option>
+  <option>krop</option><option>kroppen</option><option>struik</option><option>struiken</option>
+</datalist>
+<div id="toast"></div>
+
+<script id="app-data" type="application/json">{"version":1,"savedAt":0,"routeStore":"","stores":[{"id":"st-lidl","name":"Lidl Zierikzee","locations":[{"id":"loc-l-1","name":"Bakkerij (direct bij de ingang)"},{"id":"loc-l-2","name":"Groente & fruit"},{"id":"loc-l-3","name":"Vlees, vis & vleeswaren"},{"id":"loc-l-4","name":"Kaas & tapas (tapashoek)"},{"id":"loc-l-5","name":"Zuivel, eieren & koelvers"},{"id":"loc-l-6","name":"Ontbijt & broodbeleg"},{"id":"loc-l-7","name":"Pasta, rijst & conserven"},{"id":"loc-l-8","name":"Soepen, sauzen & kruiden"},{"id":"loc-l-9","name":"Koek, snoep & chips"},{"id":"loc-l-10","name":"Water, frisdrank & sappen"},{"id":"loc-l-11","name":"Bier & wijn"},{"id":"loc-l-12","name":"Huishouden & verzorging"},{"id":"loc-l-13","name":"Non-food & acties (middenpad)"},{"id":"loc-l-14","name":"Diepvries (achterin, richting kassa's)"},{"id":"loc-l-15","name":"Kassa's"}]},{"id":"st-ah-zierikzee","name":"Albert Heijn Haringvlietplein","locations":[{"id":"loc-ahz-1","name":"Groente & fruit (bij binnenkomst)"},{"id":"loc-ahz-2","name":"Bakkerij & vers brood"},{"id":"loc-ahz-3","name":"Grill, stomerij & verse maaltijden"},{"id":"loc-ahz-4","name":"Vlees, vis & vleeswaren (bediend)"},{"id":"loc-ahz-5","name":"Kaas"},{"id":"loc-ahz-6","name":"Zuivel, eieren & koelvers"},{"id":"loc-ahz-7","name":"Diepvries"},{"id":"loc-ahz-8","name":"Ontbijt & broodbeleg"},{"id":"loc-ahz-9","name":"Pasta, rijst & wereldkeuken"},{"id":"loc-ahz-10","name":"Soepen, sauzen, kruiden & conserven"},{"id":"loc-ahz-11","name":"Koek, chocolade & snoep"},{"id":"loc-ahz-12","name":"Chips & zoutjes"},{"id":"loc-ahz-13","name":"Koffie & thee"},{"id":"loc-ahz-14","name":"Water, frisdrank & sappen"},{"id":"loc-ahz-15","name":"Bier & wijn"},{"id":"loc-ahz-16","name":"Huishouden, verzorging & dier"},{"id":"loc-ahz-17","name":"Non-food & acties"},{"id":"loc-ahz-18","name":"Kassa's & zelfscan"}]}],"products":[{"id":"p-melk","name":"Melk halfvol","unit":"l","storeId":"st-lidl","locationId":"loc-l-5","comment":""},{"id":"p-ei","name":"Eieren (vrijloop)","unit":"stuks","storeId":"st-lidl","locationId":"loc-l-5","comment":""},{"id":"p-tomaat","name":"Trostomaten","unit":"kg","storeId":"st-lidl","locationId":"loc-l-2","comment":""},{"id":"p-brood","name":"Boerenbrood","unit":"stuk","storeId":"st-lidl","locationId":"loc-l-1","comment":""},{"id":"p-spaghetti","name":"Spaghetti","unit":"g","storeId":"st-lidl","locationId":"loc-l-7","comment":""},{"id":"p-spek","name":"Speckjes","unit":"g","storeId":"st-lidl","locationId":"loc-l-3","comment":""},{"id":"p-parmezaan","name":"Parmezaan","unit":"g","storeId":"st-lidl","locationId":"loc-l-4","comment":""},{"id":"p-boter","name":"Boter","unit":"pak","storeId":"st-lidl","locationId":"loc-l-5","comment":""}],"recipes":[{"id":"r-carb","name":"Pasta carbonara","items":[{"productId":"p-spaghetti","name":"Spaghetti","amount":500,"unit":"g","comment":""},{"productId":"p-spek","name":"Speckjes","amount":150,"unit":"g","comment":""},{"productId":"p-ei","name":"Eieren (vrijloop)","amount":3,"unit":"stuks","comment":""},{"productId":"p-parmezaan","name":"Parmezaan","amount":100,"unit":"g","comment":""}]},{"id":"r-ontbijt","name":"Ontbijt (voorbeeld)","items":[{"productId":"p-melk","name":"Melk halfvol","amount":1,"unit":"l","comment":""},{"productId":"p-brood","name":"Boerenbrood","amount":1,"unit":"stuk","comment":""},{"productId":"p-boter","name":"Boter","amount":1,"unit":"pak","comment":""},{"productId":"p-tomaat","name":"Trostomaten","amount":0.5,"unit":"kg","comment":""}]}],"list":[],"appVersion":26,"recent":[]}</script>
+<script id="app-main">
+(function(){
+'use strict';
+var PRISTINE = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+var KEY = 'boodschappen-app-v1';
+
+/* ---------- helpers ---------- */
+function $(sel, root){ return (root||document).querySelector(sel); }
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function uid(p){ return (p||'id') + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function num(v){ var n = parseFloat(String(v).replace(',','.')); return isFinite(n) ? n : null; }
+var UNIT_FORMS = [
+  ['stuk','stuks'],
+  ['gram','gram'],
+  ['kg','kg'],
+  ['liter','liter'],
+  ['ml','ml'],
+  ['pak','pakken'],
+  ['pakje','pakjes'],
+  ['fles','flessen'],
+  ['flesje','flesjes'],
+  ['blik','blikken'],
+  ['blikje','blikjes'],
+  ['doos','dozen'],
+  ['zak','zakken'],
+  ['zakje','zakjes'],
+  ['pot','potten'],
+  ['potje','potjes'],
+  ['bakje','bakjes'],
+  ['beker','bekers'],
+  ['kuipje','kuipjes'],
+  ['broodje','broodjes'],
+  ['bol','bollen'],
+  ['plak','plakken'],
+  ['snee','sneetjes'],
+  ['bos','bossen'],
+  ['krop','kroppen'],
+  ['struik','struiken']
+];
+var UNIT_ALIASES = { 'g':'gram', 'gr':'gram', 'l':'liter', 'ltr':'liter' };
+function normUnit(u){
+  u = String(u===undefined||u===null?'':u).trim().toLowerCase();
+  if (!u) return '';
+  if (UNIT_ALIASES[u]) u = UNIT_ALIASES[u];
+  for (var i=0; i<UNIT_FORMS.length; i++){
+    if (UNIT_FORMS[i][0] === u || UNIT_FORMS[i][1] === u) return UNIT_FORMS[i][0];
+  }
+  return u;
+}
+function unitLabel(amt, unit){
+  var orig = String(unit===undefined||unit===null?'':unit).trim();
+  if (!orig) return '';
+  var s = normUnit(orig);
+  for (var i=0; i<UNIT_FORMS.length; i++){
+    if (UNIT_FORMS[i][0] === s){
+      return (num(amt) === 1) ? UNIT_FORMS[i][0] : UNIT_FORMS[i][1];
+    }
+  }
+  return orig; /* onbekende eenheid ongemoeid laten */
+}
+function fmtNum(n){ var x = Number(n); if(!isFinite(x)) return ''; return String(Math.round(x*100)/100); }
+function storeById(id){ return S.stores.find(function(s){ return s.id===id; }); }
+function locById(stid, locid){ var st = storeById(stid); return st ? st.locations.find(function(l){ return l.id===locid; }) : null; }
+function prodById(id){ return S.products.find(function(p){ return p.id===id; }); }
+function storeIdx(id){ var n = -1; S.stores.forEach(function(s,i){ if (s.id===id) n=i; }); return n; }
+function locIdx(stid, id){ var st = storeById(stid); if (!st) return -1; var n = -1; st.locations.forEach(function(l,i){ if (l.id===id) n=i; }); return n; }
+function cmpProducts(a, b){
+  var sa = storeIdx(a.storeId), sb = storeIdx(b.storeId);
+  if ((sa<0?1:0) !== (sb<0?1:0)) return (sa<0?1:0) - (sb<0?1:0); /* zonder winkel onderaan */
+  if (sa !== sb) return sa - sb;
+  var la = locIdx(a.storeId, a.locationId), lb = locIdx(b.storeId, b.locationId);
+  if ((la<0?1:0) !== (lb<0?1:0)) return (la<0?1:0) - (lb<0?1:0); /* zonder plek onderaan binnen de winkel */
+  if (la !== lb) return la - lb;
+  return (a.name||'').localeCompare(b.name||'', 'nl');
+}
+function recipeById(id){ return S.recipes.find(function(r){ return r.id===id; }); }
+function moveRecipe(id, dir){
+  var i = -1;
+  for (var k=0; k<S.recipes.length; k++){ if (S.recipes[k] && S.recipes[k].id===id){ i=k; break; } }
+  if (i<0) return false;
+  var j = i + (dir<0 ? -1 : 1);
+  if (j<0 || j>=S.recipes.length) return false;
+  var r = S.recipes.splice(i,1)[0];
+  S.recipes.splice(j,0,r);
+  save();
+  return true;
+}
+var toastTimer = null;
+function toast(msg){
+  var t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+/* ---------- state ---------- */
+function normalizeState(o){
+  if (!o || typeof o!=='object') o = {};
+  if (o.version !== 1) o.version = 1;
+  if (!o.appVersion) o.appVersion = 1;
+  ['stores','products','recipes','list','recent'].forEach(function(k){ if(!Array.isArray(o[k])) o[k]=[]; });
+  return o;
+}
+function mergeRecent(a, b){
+  var by = {}, out = [];
+  a.concat(b).forEach(function(x){
+    if (!x || !x.pid) return;
+    var cur = by[x.pid];
+    if (!cur) by[x.pid] = { pid:x.pid, at:x.at||0 };
+    else if ((x.at||0) > cur.at) cur.at = x.at||0;
+  });
+  Object.keys(by).forEach(function(k){ out.push(by[k]); });
+  out.sort(function(p,q){ return q.at - p.at; });
+  return out.slice(0,50);
+}
+function mergeStates(base, old){
+  /* base = nieuwere app-versie uit dit bestand; old = eerder opgeslagen gegevens */
+  ['products','recipes'].forEach(function(k){
+    var ids = {};
+    base[k].forEach(function(x){ ids[x.id] = 1; });
+    old[k].forEach(function(x){ if(!ids[x.id]) base[k].push(x); });
+  });
+  base.list = old.list; /* de huidige boodschappenlijst is van de gebruiker */
+  base.recent = mergeRecent(base.recent, old.recent);
+  return base;
+}
+function loadState(){
+  var embedded = null, ls = null;
+  try { embedded = normalizeState(JSON.parse($('#app-data').textContent)); } catch(e){}
+  try { ls = normalizeState(JSON.parse(localStorage.getItem(KEY))); } catch(e){}
+  if (embedded && ls){
+    if ((embedded.appVersion||0) > (ls.appVersion||0)) return mergeStates(embedded, ls);
+    if ((ls.appVersion||0) > (embedded.appVersion||0)) return ls;
+    return ((ls.savedAt||0) >= (embedded.savedAt||0)) ? ls : embedded;
+  }
+  return ls || embedded || normalizeState(null);
+}
+var S = loadState();
+['stores','products','recipes','list','recent'].forEach(function(k){ if(!Array.isArray(S[k])) S[k]=[]; });
+
+function save(){
+  S.savedAt = Date.now();
+  S.rev = (S.rev||0) + 1;
+  S.by = DEV;
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){}
+  schedulePush();
+}
+
+/* ---------- export / import ---------- */
+function download(filename, text, type){
+  var blob = new Blob([text], {type:type||'application/octet-stream'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 100);
+}
+function buildAppHtml(){
+  var json = JSON.stringify(S).replace(/</g, '\\u003c');
+  return PRISTINE.replace(
+    /(<script id="app-data" type="application\/json">)([\s\S]*?)(<\/script>)/,
+    function(m, a, b, c){ return a + '\n' + json + '\n' + c; }
+  );
+}
+function saveApp(){
+  save();
+  var html = buildAppHtml();
+  try {
+    var f = new File([html], 'boodschappenlijst.html', { type: 'text/html' });
+    if (navigator.canShare && navigator.canShare({ files: [f] })){
+      navigator.share({ files: [f], title: 'Boodschappenlijst' }).then(function(){
+        toast("Kies 'Opslaan in Bestanden' en zet het in je iCloud-map");
+      }).catch(function(err){
+        if (err && err.name !== 'AbortError') download('boodschappenlijst.html', html, 'text/html');
+      });
+      return;
+    }
+  } catch(e){}
+  download('boodschappenlijst.html', html, 'text/html');
+  toast('App opgeslagen als boodschappenlijst.html');
+}
+function legacyCopy(text){
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch(e){}
+  ta.remove();
+}
+function copyAppHtml(){
+  save();
+  var html = buildAppHtml();
+  var msg = 'HTML gekopieerd. Plak het in een teksteditor en sla op als boodschappenlijst.html';
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(html).then(function(){ toast(msg); }, function(){ legacyCopy(html); toast(msg); });
+      return;
+    }
+  } catch(e){}
+  legacyCopy(html);
+  toast(msg);
+}
+
+/* ---------- basket logic ---------- */
+function touchRecent(pid){
+  if (!pid || !prodById(pid)) return;
+  var arr = S.recent, e = null, i = 0;
+  for (i=0; i<arr.length; i++){ if (arr[i] && arr[i].pid === pid){ e = arr[i]; break; } }
+  if (e) arr.splice(i,1);
+  else e = { pid:pid, at:0 };
+  e.at = Date.now();
+  arr.unshift(e);
+  if (arr.length > 50) arr.length = 50;
+}
+function addToBasket(o){
+  var amt = num(o.amount); if (amt==null || amt<0) amt = 1;
+  var cand = S.list.find(function(it){
+    if (!!it.productId !== !!o.productId) return false;
+    if (it.productId) return it.productId === o.productId; /* zelfde product = altijd samenvoegen, ook bij afwijkende eenheid */
+    return (it.name||'').toLowerCase() === (o.name||'').toLowerCase() && (it.unit||'') === (o.unit||'');
+  });
+  if (cand){
+    cand.amount = (num(cand.amount)||0) + amt;
+    /* herkomst: alle ingrediëntenlijsten noemen waaruit het deze keer is toegevoegd */
+    (o.origins||[]).forEach(function(or){ if (or && cand.origins.indexOf(or)<0) cand.origins.push(or); });
+    if (o.comment && !cand.comment) cand.comment = o.comment;
+    touchRecent(o.productId);
+    save();
+    return cand;
+  }
+  var item = {
+    id: uid('li'), productId: o.productId||null, name: o.name||'',
+    amount: amt, unit: o.unit||'stuk', comment: o.comment||'',
+    storeId: o.storeId||null, locationId: o.locationId||null,
+    origins: (o.origins||[]).slice(), done:false
+  };
+  S.list.push(item);
+  touchRecent(o.productId);
+  save();
+  return item;
+}
+function addRecipeItemToList(r, ri){
+  if (ri.productId){
+    var p = prodById(ri.productId);
+    if (p){
+      addToBasket({ productId:p.id, name:p.name, amount:ri.amount, unit:ri.unit||p.unit||'stuk', comment:ri.comment, origins:[r.name] });
+      return true;
+    }
+  }
+  if ((ri.name||'').trim()){
+    addToBasket({ name:ri.name, amount:ri.amount, unit:ri.unit, comment:ri.comment, storeId:null, locationId:null, origins:[r.name] });
+    return true;
+  }
+  return false;
+}
+function addRecipeToList(r){
+  var n = 0;
+  r.items.forEach(function(ri){ if (addRecipeItemToList(r, ri)) n++; });
+  return n;
+}
+function resolveItem(it){
+  var p = it.productId ? prodById(it.productId) : null;
+  if (p) return { name:p.name, unit:it.unit, comment:it.comment, storeId:p.storeId, locationId:p.locationId };
+  var st = it.storeId ? storeById(it.storeId) : null;
+  return { name:it.name, unit:it.unit, comment:it.comment, storeId: st ? it.storeId : null, locationId: it.locationId };
+}
+function storeLabel(id){ var st = storeById(id); return st ? st.name : 'Onbekende winkel'; }
+function locLabel(st, locid){
+  var l = locid ? locById(st, locid) : null;
+  return l ? l.name : null;
+}
+
+/* ---------- modal ---------- */
+var modalHost = null;
+function ensureModalHost(){
+  if (modalHost) return;
+  modalHost = document.createElement('div'); modalHost.hidden = true;
+  document.body.appendChild(modalHost);
+}
+function openModal(html){
+  ensureModalHost();
+  modalHost.innerHTML = '<div class="overlay"><div class="modalcard">'+html+'</div></div>';
+  modalHost.hidden = false;
+  var ov = modalHost.querySelector('.overlay');
+  ov.addEventListener('click', function(e){ if (e.target === ov) closeModal(); });
+  return modalHost.querySelector('.modalcard');
+}
+function closeModal(){
+  if (modalHost){ modalHost.hidden = true; modalHost.innerHTML=''; }
+  if (pendingSyncState){
+    S = pendingSyncState; pendingSyncState = null;
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){}
+    render();
+  }
+}
+
+function linkProductToRecipes(prod, recSel){
+  /* prod koppelen aan/loskoppelen van ingrediëntenlijsten volgens aanvinkstatus */
+  S.recipes.forEach(function(r){
+    var row = r.items.find(function(ri){ return ri.productId === prod.id; });
+    var on = !!(recSel && recSel[r.id]);
+    if (on && !row){
+      r.items.push({ productId: prod.id, name: prod.name, amount:'', unit: prod.unit||'', comment:'' });
+    } else if (!on && row){
+      r.items.splice(r.items.indexOf(row), 1);
+    }
+  });
+}
+function openProductModal(p, onSaved){
+  var isEdit = !!p;
+  var card = openModal(
+    '<h3>'+(isEdit?'Product wijzigen':'Nieuw product')+'</h3>'+
+    '<div class="field"><label>Naam *</label><input type="text" id="pf-name" value="'+esc(p?p.name:'')+'"></div>'+
+    '<div class="field"><label>Standaard eenheid</label>'+
+    '<select id="pf-unit">'+
+    (function(pUnit){
+      var pu = String(pUnit===undefined||pUnit===null?'':pUnit).trim();
+      var norm = normUnit(pu);
+      var inList = false;
+      UNIT_FORMS.forEach(function(uf){ if (uf[0] === norm) inList = true; });
+      var opts = '';
+      if (pu && !inList) opts += '<option value="'+esc(pu)+'" selected>'+esc(pu)+'</option>';
+      UNIT_FORMS.forEach(function(uf){
+        opts += '<option value="'+uf[0]+'"'+(norm===uf[0]?' selected':'')+'>'+esc(uf[0]+(uf[1]!==uf[0] ? ' / '+uf[1] : ''))+'</option>';
+      });
+      return opts;
+    })(p ? p.unit : 'stuk')+
+    '</select></div>'+
+    '<div class="field"><label>Winkel</label><select id="pf-store"></select></div>'+
+    '<div class="field"><label>Locatie in de winkel (bepaalt de plek in de route)</label><select id="pf-loc"></select></div>'+
+    '<div class="field"><label>Opmerking</label><input type="text" id="pf-comment" value="'+esc(p?p.comment:'')+'"></div>'+
+    '<div class="field"><label>In ingrediëntenlijsten (aanvinken om te koppelen)</label>'+
+    '<div id="pf-recs" class="recchecks">'+
+    (S.recipes.map(function(r){
+      var member = p && r.items.some(function(ri){ return ri.productId === p.id; });
+      return '<label class="chk"><input type="checkbox" data-recchk="'+r.id+'"'+(member?' checked':'')+'> '+esc(r.name||'(naamloos)')+'</label>';
+    }).join('') || '<span class="hint">Nog geen ingrediëntenlijsten.</span>')+
+    '</div></div>'+
+    '<div class="modalactions"><button class="btn" data-x="cancel">Annuleren</button><button class="btn primary" data-x="ok">Opslaan</button></div>'
+  );
+  var storeSel = $('#pf-store', card), locSel = $('#pf-loc', card);
+  function locOptions(storeId, selId){
+    var st = storeById(storeId);
+    var out = '<option value="">(nog onbekend)</option>';
+    if (st) st.locations.forEach(function(l){
+      out += '<option value="'+l.id+'"'+(l.id===selId?' selected':'')+'>'+esc(l.name)+'</option>';
+    });
+    return out;
+  }
+  var so = '<option value="">(geen winkel)</option>';
+  S.stores.forEach(function(s){ so += '<option value="'+s.id+'"'+(p&&p.storeId===s.id?' selected':'')+'>'+esc(s.name)+'</option>'; });
+  storeSel.innerHTML = so;
+  locSel.innerHTML = locOptions(storeSel.value, p ? p.locationId : null);
+  storeSel.addEventListener('change', function(){ locSel.innerHTML = locOptions(storeSel.value, null); });
+  card.querySelector('[data-x=cancel]').addEventListener('click', closeModal);
+  card.querySelector('[data-x=ok]').addEventListener('click', function(){
+    var name = $('#pf-name', card).value.trim();
+    if (!name){ toast('Vul een naam in'); return; }
+    var out = {
+      name: name,
+      unit: $('#pf-unit', card).value.trim() || 'stuk',
+      storeId: storeSel.value || null,
+      locationId: locSel.value || null,
+      comment: $('#pf-comment', card).value.trim()
+    };
+    var prod;
+    if (isEdit){
+      prod = p;
+      prod.name=out.name; prod.unit=out.unit; prod.storeId=out.storeId; prod.locationId=out.locationId; prod.comment=out.comment;
+    } else {
+      prod = { id: uid('p'), name:out.name, unit:out.unit, storeId:out.storeId, locationId:out.locationId, comment:out.comment };
+      S.products.push(prod);
+    }
+    var recSel = {};
+    card.querySelectorAll('[data-recchk]').forEach(function(c){ recSel[c.dataset.recchk] = c.checked; });
+    linkProductToRecipes(prod, recSel);
+    save(); closeModal();
+    if (onSaved) onSaved(prod);
+    render();
+  });
+}
+
+function openMenu(){
+  var card = openModal(
+    '<h3>Gegevens & synchroniseren</h3>'+
+    '<button class="btn primary" id="mSaveApp">💾 Opslaan als app (dit bestand + alle lijsten)</button>'+
+    '<button class="btn" id="mExport">⬇️ Gegevens exporteren (reservekopie, JSON)</button>'+
+    '<button class="btn" id="mImportBtn">⬆️ Gegevens importeren (JSON)</button>'+
+    '<button class="btn" id="mSync">🔄 Synchroniseren tussen telefoons</button>'+
+    '<input type="file" id="mImport" accept=".json,application/json" hidden>'+
+    '<button class="btn" id="mCopyHtml">📋 HTML als tekst kopiëren (noodoplossing)</button>'+
+    '<button class="btn danger" id="mWipe">🗑 Alles wissen (opnieuw beginnen)</button>'+
+    '<hr class="sep">'+
+    '<p class="hint"><b>Openen op de iPhone (eenmalig instellen)</b><br>'+
+    'De voorvertoning van de Bestanden-app voert geen JavaScript uit. Installeer daarom eenmalig de gratis app <b>Documents (van Readdle)</b>:<br>'+
+    '1. Open Documents en geef de app toegang tot iCloud Drive.<br>'+
+    '2. Navigeer naar boodschappenlijst.html in je iCloud-map en tik erop: de website opent volledig werkend.<br>'+
+    '3. Na het maken van de lijst tik je op 💾 Opslaan en kies je <i>Opslaan in Bestanden</i> richting je iCloud-map (zelfde naam = oud bestand vervangen).<br><br>'+
+    '<b>Openen op de Mac</b><br>'+
+    'Dubbelklik op boodschappenlijst.html; alles werkt direct in Safari of Chrome.<br><br>'+
+    '<b>Altijd één bestand houden</b><br>'+
+    'Wie het bestand daarna ook opent (telefoon of Mac) ziet meteen de nieuwste lijsten, ook offline.</p>'
+  );
+  card.querySelector('#mSaveApp').addEventListener('click', function(){ saveApp(); });
+  card.querySelector('#mSync').addEventListener('click', openSyncWindow);
+  card.querySelector('#mCopyHtml').addEventListener('click', copyAppHtml);
+  card.querySelector('#mExport').addEventListener('click', function(){
+    save(); download('boodschappen-data.json', JSON.stringify(S, null, 2), 'application/json');
+    toast('Gegevens geëxporteerd');
+  });
+  var fi = card.querySelector('#mImport');
+  card.querySelector('#mImportBtn').addEventListener('click', function(){ fi.click(); });
+  fi.addEventListener('change', function(){
+    var f = fi.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function(){
+      try {
+        var o = JSON.parse(rd.result);
+        if (!o || typeof o!=='object' || !Array.isArray(o.products)) throw new Error('geen herkenbare gegevens');
+        S = normalizeState(o); save(); closeModal(); render(); toast('Gegevens geïmporteerd');
+      } catch(e){ toast('Kon bestand niet lezen'); }
+    };
+    rd.readAsText(f);
+  });
+  card.querySelector('#mWipe').addEventListener('click', function(){
+    if (!confirm('ALLE producten, winkels, ingrediëntenlijsten en de boodschappenlijst wissen?')) return;
+    S = { version:1, savedAt:0, stores:[], products:[], recipes:[], list:[], recent:[] };
+    save(); closeModal(); render(); toast('Alles gewist');
+  });
+}
+
+/* ---------- tabs ---------- */
+var TAB = 'lijst';
+function tabBadge(){
+  var vb = document.getElementById('versionBadge'); if (vb) vb.textContent = 'v' + (S.appVersion||1);
+  var nList = S.list.length;
+  var nOpen = S.list.filter(function(i){ return !i.done; }).length;
+  setBadge('b-lijst', nList); $('#b-lijst').classList.toggle('zero', nList===0);
+  setBadge('b-route', nOpen); $('#b-route').classList.toggle('zero', nOpen===0);
+  document.querySelectorAll('.tabbtn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.tab===TAB);
+  });
+}
+function setBadge(id, n){ document.getElementById(id).textContent = n; }
+function switchTab(t){ TAB = t; render(); window.scrollTo(0,0); }
+
+document.getElementById('tabs').addEventListener('click', function(e){
+  var b = e.target.closest('.tabbtn'); if (b) switchTab(b.dataset.tab);
+});
+document.getElementById('saveAppBtn').addEventListener('click', saveApp);
+document.getElementById('menuBtn').addEventListener('click', openMenu);
+var syncdotEl = document.getElementById('syncdot');
+if (syncdotEl) syncdotEl.addEventListener('click', openSyncWindow);
+
+var view = document.getElementById('view');
+function render(){
+  tabBadge();
+  if (TAB==='lijst') renderLijst();
+  else if (TAB==='route') renderRoute();
+  else if (TAB==='producten') renderProducten();
+  else if (TAB==='recepten') renderRecepten();
+  else renderWinkels();
+}
+
+/* ---------- TAB: LIJST ---------- */
+var openRecipes = {};
+function recipeItemName(ri){
+  var p = ri.productId ? prodById(ri.productId) : null;
+  return (ri.name || (p ? p.name : '') || '(zonder naam)');
+}
+function recipeItemQty(ri){
+  if (ri.amount === undefined || ri.amount === null || ri.amount === '') return '';
+  return (ri.amount + ' ' + unitLabel(ri.amount, ri.unit)).trim();
+}
+function recentBlockHtml(){
+  var items = (S.recent||[]).map(function(x){ return (x && x.pid) ? prodById(x.pid) : null; })
+    .filter(Boolean).slice(0,25);
+  if (!items.length) return '';
+  var open = !!openRecipes['__recent__'];
+  var rows = items.map(function(p){
+    return '<button class="result" data-addrecent="'+p.id+'">'+
+      '<span><b>➕ '+esc(p.name)+'</b></span>'+
+      '<span class="meta">'+esc(storeLabel(p.storeId))+'</span>'+
+      '</button>';
+  }).join('');
+  return '<div class="card rcard">'+
+    '<div class="rhead">'+
+      '<b data-exptog="__recent__" style="flex:1;min-width:0;cursor:pointer;font-size:1rem">Laatst bestelde producten <span class="dim" style="font-size:.8rem">'+items.length+' producten</span></b>'+
+      '<button class="btn small" data-exptog="__recent__">'+(open?'▲ Dicht':'▼ Open')+'</button>'+
+    '</div>'+
+    (open ? '<div style="margin-top:10px">'+
+      '<p class="hint">Producten van <b>Laatst bestelde producten</b> — tik één product aan om het op de boodschappenlijst te zetten:</p>'+
+      rows+
+    '</div>' : '')+
+  '</div>';
+}
+function recipesBoxHtml(){
+  var recent = recentBlockHtml();
+  if (!S.recipes.length){
+    return recent || '<p class="hint">Nog geen ingrediëntenlijsten. Maak die bij het tabblad 🍲 Ingrediëntenlijsten.</p>';
+  }
+  return recent + S.recipes.map(function(r){
+    var open = !!openRecipes[r.id];
+    var rows = r.items.map(function(ri, i){
+      return '<button class="result" data-addri="'+r.id+'|'+i+'">'+
+        '<span><b>➕ '+esc(recipeItemName(ri))+'</b></span>'+
+        '<span class="meta">'+esc(recipeItemQty(ri))+'</span>'+
+        '</button>';
+    }).join('') || '<p class="hint">Deze lijst heeft nog geen producten.</p>';
+    return '<div class="card rcard">'+
+      '<div class="rhead">'+
+        '<b data-exptog="'+r.id+'" style="flex:1;min-width:0;cursor:pointer;font-size:1rem">'+esc(r.name||'(naamloos)')+' <span class="dim" style="font-size:.8rem">'+r.items.length+' producten</span></b>'+
+        '<button class="btn small" data-exptog="'+r.id+'">'+(open?'▲ Dicht':'▼ Open')+'</button>'+
+        '<button class="btn small primary" data-addr="'+r.id+'">➕ Hele lijst</button>'+
+      '</div>'+
+      (open ? '<div style="margin-top:10px">'+
+        '<p class="hint">Producten van <b>'+esc(r.name)+'</b> — tik één product aan om alleen dat toe te voegen:</p>'+
+        rows+
+      '</div>' : '')+
+    '</div>';
+  }).join('');
+}
+function bindRecipesBox(box){
+  box.addEventListener('click', function(e){
+    var rec = e.target.closest('[data-addrecent]');
+    if (rec){
+      var p = prodById(rec.dataset.addrecent);
+      if (p){
+        addToBasket({ productId:p.id, name:p.name, amount:1, unit:p.unit||'stuk', origins:[] });
+        toast('"'+p.name+'" toegevoegd');
+        refreshBasket();
+      }
+      return;
+    }
+    var tog = e.target.closest('[data-exptog]');
+    if (tog){
+      openRecipes[tog.dataset.exptog] = !openRecipes[tog.dataset.exptog];
+      box.innerHTML = recipesBoxHtml();
+      return;
+    }
+    var one = e.target.closest('[data-addri]');
+    if (one){
+      var pr = one.dataset.addri.split('|');
+      var r = recipeById(pr[0]);
+      if (r && r.items[+pr[1]]){
+        var ri = r.items[+pr[1]];
+        addRecipeItemToList(r, ri);
+        toast('"'+recipeItemName(ri)+'" toegevoegd');
+        refreshBasket();
+      }
+      return;
+    }
+    var chip = e.target.closest('[data-addr]');
+    if (!chip) return;
+    var rAll = recipeById(chip.dataset.addr);
+    if (rAll){
+      var n = addRecipeToList(rAll);
+      toast(n+' producten van "'+(rAll.name||'lijst')+'" toegevoegd');
+      refreshBasket();
+    }
+  });
+}
+function renderLijst(){
+  view.innerHTML =
+  '<div class="card">'+
+    '<h2>Producten toevoegen</h2>'+
+    '<p class="hint">Bovenaan staat de lijst met jullie 25 laatst bestelde producten. Tik op ▸ om alle producten van een lijst te zien en er slechts enkele aan te tikken, of op ➕ Hele lijst om alles in één keer op de boodschappenlijst te zetten. Dezelfde producten worden automatisch samengevoegd.</p>'+
+    '<div id="recipesBox">'+recipesBoxHtml()+'</div>'+
+  '</div>'+
+  '<div class="card">'+
+    '<h2>Bekende producten zoeken</h2>'+
+    '<input type="text" class="search" id="lq" placeholder="Zoek product (bijv. melk)..." autocomplete="off">'+
+    '<div id="lresults"></div>'+
+  '</div>'+
+  '<div class="card">'+
+    '<h2>Los item toevoegen</h2>'+
+    '<p class="hint">Voor iets dat niet als product bestaat, bijv. "verjaardagstaart bestellen".</p>'+
+    '<div class="rowflex">'+
+      '<input type="text" id="cf-name" placeholder="Naam" style="flex:2;min-width:150px">'+
+      '<input type="text" id="cf-amount" placeholder="1" style="width:60px;text-align:right">'+
+      '<input type="text" id="cf-unit" list="units" placeholder="stuk" style="width:72px">'+
+    '</div>'+
+    '<div class="rowflex" style="margin-top:8px">'+
+      '<select id="cf-store" style="flex:1;min-width:130px"><option value="">Winkel (optioneel)</option>'+storeOptions()+'</select>'+
+      '<select id="cf-loc" style="flex:1;min-width:130px"></select>'+
+      '<input type="text" id="cf-comment" placeholder="Opmerking" style="flex:1;min-width:120px">'+
+    '</div>'+
+    '<div style="margin-top:10px"><button class="btn" id="cf-add">➕ Toevoegen aan lijst</button></div>'+
+  '</div>'+
+  '<div class="card">'+
+    '<h2>Huidige boodschappenlijst</h2><div id="basketBox"></div>'+
+    '<div id="listActions"></div>'+
+  '</div>';
+
+  bindRecipesBox($('#recipesBox'));
+
+  refreshBasket();
+  var q = $('#lq');
+  q.addEventListener('input', function(){ searchResults(q.value); });
+  searchResults('');
+
+  var cfStore = $('#cf-store'), cfLoc = $('#cf-loc');
+  function rebuildCfLoc(selId){
+    cfLoc.innerHTML = '<option value="">Locatie (optioneel)</option>' + locOptionsFor(cfStore.value, selId);
+  }
+  cfStore.addEventListener('change', function(){ rebuildCfLoc(null); });
+  rebuildCfLoc(null);
+
+  $('#cf-add').addEventListener('click', function(){
+    var name = $('#cf-name').value.trim();
+    if (!name){ toast('Vul een naam in'); return; }
+    addToBasket({
+      name:name, amount:$('#cf-amount').value, unit:$('#cf-unit').value.trim()||'stuk',
+      comment:$('#cf-comment').value.trim(), storeId:cfStore.value||null, locationId:cfLoc.value||null, origins:[]
+    });
+    $('#cf-name').value=''; $('#cf-amount').value=''; $('#cf-comment').value='';
+    toast('"'+name+'" toegevoegd'); refreshBasket();
+  });
+}
+function storeOptions(){
+  return S.stores.map(function(s){ return '<option value="'+s.id+'">'+esc(s.name)+'</option>'; }).join('');
+}
+function locOptionsFor(storeId, selId){
+  var st = storeById(storeId); var out = '';
+  if (st) st.locations.forEach(function(l){
+    out += '<option value="'+l.id+'"'+(l.id===selId?' selected':'')+'>'+esc(l.name)+'</option>';
+  });
+  return out;
+}
+function searchResults(qstr){
+  var box = $('#lresults'); if (!box) return;
+  var q = qstr.trim().toLowerCase();
+  var html = '';
+  if (q){
+    var hits = S.products.filter(function(p){
+      return p.name.toLowerCase().indexOf(q) >= 0;
+    }).slice(0, 8);
+    html += hits.map(function(p){
+      return '<button class="result" data-addp="'+p.id+'"><span><b>➕ '+esc(p.name)+'</b></span><span class="meta">'+esc(storeLabel(p.storeId))+(locLabel(p.storeId,p.locationId)?' · '+esc(locLabel(p.storeId,p.locationId)):'')+'</span></button>';
+    }).join('');
+  } else {
+    html += '<p class="hint">Begin te typen... Bekende producten verschijnen hier en kun je met één tik toevoegen.</p>';
+  }
+  html += '<button class="btn primary" data-newp="1" style="width:100%;margin-top:6px">➕ Nieuw product</button>';
+  box.innerHTML = html;
+  box.querySelectorAll('[data-addp]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var p = prodById(b.dataset.addp); if (!p) return;
+      addToBasket({ productId:p.id, name:p.name, amount:1, unit:p.unit||'stuk', origins:[] });
+      toast('"'+p.name+'" toegevoegd (aantal kun je in de lijst aanpassen)');
+      refreshBasket();
+    });
+  });
+  var np = box.querySelector('[data-newp]');
+  if (np) np.addEventListener('click', function(){
+    openProductModal(null, function(prod){
+      addToBasket({ productId: prod.id, name: prod.name, amount: 1, unit: prod.unit||'stuk', origins: [] });
+      toast('"'+prod.name+'" op de boodschappenlijst gezet');
+    });
+  });
+}
+function refreshBasket(){
+  var box = $('#basketBox'); if (!box) return;
+  if (!S.list.length){
+    box.innerHTML = '<p class="hint">Nog niets op de lijst. Voeg hierboven ingrediëntenlijsten en producten toe.</p>';
+  } else {
+    box.innerHTML = S.list.map(function(it){
+      var res = resolveItem(it);
+      var nameHtml = it.productId
+        ? '<b>'+esc(res.name)+'</b>'
+        : '<input type="text" class="nameinput" data-it="'+it.id+'" data-f="name" value="'+esc(it.name)+'">';
+      var meta = [];
+      if (it.origins && it.origins.length) meta.push('<span class="tag">🍲 '+esc(it.origins.join(', '))+'</span>');
+      return '<div class="itemrow">'+
+        '<div class="qty">'+
+          '<input type="text" inputmode="decimal" data-it="'+it.id+'" data-f="amount" value="'+esc(fmtNum(it.amount))+'">'+
+          '<input type="text" class="unit" list="units" data-it="'+it.id+'" data-f="unit" value="'+esc(unitLabel(it.amount, it.unit))+'">'+
+        '</div>'+
+        '<div class="body">'+nameHtml+(meta.length ? '<div class="sub">'+meta.join('')+'</div>' : '')+'</div>'+
+        '<input type="text" class="note" placeholder="opm." data-it="'+it.id+'" data-f="comment" value="'+esc(it.comment)+'">'+
+        '<button class="iconbtn danger" data-del="'+it.id+'" title="Van lijst">✕</button>'+
+      '</div>';
+    }).join('');
+    box.querySelectorAll('input[data-it]').forEach(function(inp){
+      inp.addEventListener('change', function(){
+        var it = S.list.find(function(x){ return x.id===inp.dataset.it; }); if (!it) return;
+        if (inp.dataset.f==='amount'){ var n = num(inp.value); if (n!=null && n>=0) it.amount = n; }
+        else it[inp.dataset.f] = inp.value;
+        save();
+        if (inp.dataset.f==='amount'){ refreshBasket(); return; } /* stuk/stuks direct bijwerken */
+      });
+    });
+    box.querySelectorAll('[data-del]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        S.list = S.list.filter(function(x){ return x.id!==btn.dataset.del; });
+        save(); refreshBasket(); tabBadge();
+      });
+    });
+  }
+  refreshListActions();
+}
+function refreshListActions(){
+  var box = $('#listActions'); if (!box) return;
+  if (S.list.length){
+    box.innerHTML = '<div class="rowflex" style="margin-top:12px">'+
+      '<button class="btn danger" id="clearList">🗑 Lijst wissen</button></div>';
+    $('#clearList').addEventListener('click', function(){
+      if (!confirm('De hele boodschappenlijst wissen?')) return;
+      S.list = []; save(); refreshBasket(); tabBadge();
+    });
+  } else {
+    box.innerHTML = '';
+  }
+  var old = $('#makeRoute'); if (old) old.remove();
+  var btn = document.createElement('button');
+  btn.className = 'btn primary big'; btn.id = 'makeRoute';
+  btn.innerHTML = '🧭 Maak boodschappenlijst voor vandaag <span class="badge">'+S.list.length+'</span>';
+  if (!S.list.length) btn.disabled = true;
+  btn.addEventListener('click', function(){ switchTab('route'); });
+  view.appendChild(btn);
+}
+
+/* ---------- TAB: ROUTE ---------- */
+function renderRoute(){
+  if (!S.list.length){
+    view.innerHTML = '<div class="card empty"><span class="big">🧺</span><b>Nog geen boodschappen op de lijst.</b><br>'+
+      '<button class="btn primary" data-goto="lijst">Naar Bestellen</button></div>';
+    view.querySelectorAll('[data-goto]').forEach(function(b){
+      b.addEventListener('click', function(){ switchTab(b.dataset.goto); });
+    });
+    return;
+  }
+  var filter = S.routeStore || '';
+  var total = S.list.length;
+  var done = S.list.filter(function(i){ return i.done; }).length;
+
+  var html = '<div class="card"><div class="shophead">'+
+    '<select id="routeStoreFilter"><option value="">Alle winkels</option>'+
+    S.stores.map(function(s){ return '<option value="'+s.id+'"'+(filter===s.id?' selected':'')+'>'+esc(s.name)+'</option>'; }).join('')+
+    '</select>'+
+    '<div class="bar"><div id="progressBar" style="width:'+Math.round(done/total*100)+'%"></div></div>'+
+    '<span id="progressText">'+done+' / '+total+'</span>'+
+    '</div>';
+
+  html += buildRouteGroups(filter);
+  html += '<hr class="sep"><div class="rowflex">'+
+    '<button class="btn primary" id="removeDone">✓ Klaar</button>'+
+  '</div></div>';
+
+  view.innerHTML = html;
+
+  $('#routeStoreFilter').addEventListener('change', function(e){
+    S.routeStore = e.target.value; save(); renderRoute();
+  });
+
+  view.querySelectorAll('input[data-done]').forEach(function(cb){
+    cb.addEventListener('change', function(){
+      var it = S.list.find(function(x){ return x.id===cb.dataset.done; }); if (!it) return;
+      it.done = cb.checked; save();
+      cb.closest('.shopitem').classList.toggle('done', it.done);
+      var total2 = S.list.length;
+      var done2 = S.list.filter(function(i){ return i.done; }).length;
+      $('#progressBar').style.width = Math.round(done2/total2*100)+'%';
+      $('#progressText').textContent = done2+' / '+total2;
+      var lg = cb.closest('.locgroup');
+      if (lg){ var bo = lg.querySelector('.loccount'); if (bo) bo.textContent = locDoneCount(lg)+'/'+lg.querySelectorAll('input[data-done]').length; }
+      tabBadge();
+    });
+  });
+  view.querySelectorAll('button[data-delroute]').forEach(function(b){
+    b.addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation();
+      S.list = S.list.filter(function(x){ return x.id!==b.dataset.delroute; });
+      save(); renderRoute(); tabBadge();
+    });
+  });
+  $('#removeDone').addEventListener('click', function(){
+    var n = S.list.filter(function(i){ return i.done; }).length;
+    if (!n){ toast('Niets afgevinkt'); return; }
+    S.list = S.list.filter(function(i){ return !i.done; });
+    save(); renderRoute(); tabBadge();
+    toast(n+' product'+(n===1?'':'en')+' van de lijst');
+  });
+}
+function locDoneCount(locEl){
+  var d = 0;
+  locEl.querySelectorAll('input[data-done]').forEach(function(b){ if (b.checked) d++; });
+  return d;
+}
+function routeRow(it){
+  var res = resolveItem(it);
+  return '<label class="shopitem'+(it.done?' done':'')+'">'+
+    '<input type="checkbox" data-done="'+it.id+'"'+(it.done?' checked':'')+'>'+
+    '<div class="body">'+
+      '<b>'+esc(res.name||'(zonder naam)')+'</b> '+
+      '<span class="aantal">'+esc(fmtNum(it.amount)+' '+unitLabel(it.amount, it.unit))+'</span>'+
+      (res.comment?'<div class="note">📌 '+esc(res.comment)+'</div>':'')+
+    '</div>'+
+    '<button class="iconbtn danger" data-delroute="'+it.id+'" title="Van lijst">✕</button>'+
+  '</label>';
+}
+function buildRouteGroups(filter){
+  var items = S.list.map(function(it){ return { it:it, res:resolveItem(it) }; });
+  var html = '';
+  S.stores.forEach(function(store){
+    if (filter && store.id!==filter) return;
+    var si = items.filter(function(x){ return x.res.storeId===store.id; });
+    if (!si.length) return;
+    html += '<div class="shopgroup"><h4>🏬 '+esc(store.name)+'</h4>';
+    store.locations.forEach(function(l, i){
+      var li = si.filter(function(x){ return x.res.locationId===l.id; });
+      if (!li.length) return;
+      var dn = li.filter(function(x){ return x.it.done; }).length;
+      html += '<div class="locgroup"><h3><span class="locnr">'+(i+1)+'</span> '+esc(l.name)+' <span class="dim loccount">'+dn+'/'+li.length+'</span></h3>'+
+        li.map(function(x){ return routeRow(x.it); }).join('')+'</div>';
+    });
+    var rem = si.filter(function(x){ return !locById(store.id, x.res.locationId); });
+    if (rem.length){
+      var dn2 = rem.filter(function(x){ return x.it.done; }).length;
+      html += '<div class="locgroup noloc"><h3><span class="locnr">?</span> Zonder vaste plek <span class="dim loccount">'+dn2+'/'+rem.length+'</span></h3>'+
+        rem.map(function(x){ return routeRow(x.it); }).join('')+'</div>';
+    }
+    html += '</div>';
+  });
+  if (!filter){
+    var overig = items.filter(function(x){ return !storeById(x.res.storeId); });
+    if (overig.length){
+      var dn3 = overig.filter(function(x){ return x.it.done; }).length;
+      html += '<div class="shopgroup"><h4>❓ Winkel onbekend / nog in te delen</h4><div class="locgroup noloc"><h3><span class="locnr">?</span> Overig <span class="dim loccount">'+dn3+'/'+overig.length+'</span></h3>'+
+        overig.map(function(x){ return routeRow(x.it); }).join('')+'</div></div>';
+    }
+  }
+  return html;
+}
+
+/* ---------- TAB: PRODUCTEN ---------- */
+var prodQuery = '';
+function renderProducten(){
+  var q = prodQuery.trim().toLowerCase();
+  var prods = S.products.filter(function(p){ return !q || p.name.toLowerCase().indexOf(q)>=0; })
+                        .sort(cmpProducts);
+  view.innerHTML =
+  '<div class="card">'+
+    '<h2>Producten <span class="dim">('+S.products.length+')</span></h2>'+
+    '<p class="hint">Alle bekende producten, gesorteerd per winkel en per plek in de winkel.</p>'+
+    '<div class="rowflex" style="margin-bottom:10px">'+
+      '<input type="text" class="search" id="prodQ" placeholder="Zoeken..." value="'+esc(prodQuery)+'" style="flex:1">'+
+      '<button class="btn primary" id="newProd">➕ Nieuw product</button>'+
+    '</div>'+
+    '<div id="prodRows">'+
+    (prods.length ? prods.map(function(p){ return prodRow(p); }).join('') :
+      '<p class="hint">'+(S.products.length?'Geen producten gevonden voor deze zoekterm.':'Nog geen producten. Voeg hier je eerste product toe, daarna kun je het steeds hergebruiken.')+'</p>')+
+    '</div>'+
+  '</div>';
+  $('#prodQ').addEventListener('input', function(e){ prodQuery = e.target.value; renderProducten(); });
+  $('#newProd').addEventListener('click', function(){ openProductModal(null, null); });
+  bindProdRows();
+}
+function prodRow(p){
+  var inLists = S.recipes.filter(function(r){ return r.items.some(function(i){ return i.productId===p.id; }); });
+  var st = storeById(p.storeId);
+  var loc = st ? locById(st.id, p.locationId) : null;
+  var locIdx = st ? st.locations.findIndex(function(l){ return l.id===p.locationId; }) + 1 : 0;
+  return '<div class="itemrow">'+
+    '<div class="body"><b>'+esc(p.name)+'</b> <span class="dim">'+esc(p.unit||'')+'</span>'+
+      '<div class="sub">'+
+        '<span class="tag">'+(st?'🏬 '+esc(st.name):'🏬 onbekend')+(loc?' · '+locIdx+'. '+esc(loc.name):'')+'</span>'+
+        inLists.map(function(r){ return '<span class="tag">🍲 '+esc(r.name)+'</span>'; }).join('')+
+        (p.comment?'<span class="tag">📌 '+esc(p.comment)+'</span>':'')+
+      '</div>'+
+    '</div>'+
+    '<button class="iconbtn" data-editp="'+p.id+'" title="Wijzig">✏️</button>'+
+    '<button class="iconbtn" data-addl="'+p.id+'" title="Op boodschappenlijst">🛒</button>'+
+    '<button class="iconbtn danger" data-rmp="'+p.id+'" title="Verwijderen">🗑</button>'+
+  '</div>';
+}
+function bindProdRows(){
+  var rows = $('#prodRows'); if (!rows) return;
+  rows.querySelectorAll('[data-editp]').forEach(function(b){
+    b.addEventListener('click', function(){ openProductModal(prodById(b.dataset.editp), null); });
+  });
+  rows.querySelectorAll('[data-addl]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var p = prodById(b.dataset.addl); if (!p) return;
+      addToBasket({ productId:p.id, name:p.name, amount:1, unit:p.unit||'stuk', origins:[] });
+      toast('"'+p.name+'" op de boodschappenlijst');
+    });
+  });
+  rows.querySelectorAll('[data-rmp]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var p = prodById(b.dataset.rmp); if (!p) return;
+      if (!confirm('"'+p.name+'" verwijderen? In ingrediëntenlijsten wordt het bewaard als vast ingrediënt.')) return;
+      S.products = S.products.filter(function(x){ return x.id!==p.id; });
+      S.recent = S.recent.filter(function(x){ return x.pid!==p.id; });
+      S.recipes.forEach(function(r){ r.items.forEach(function(ri){ if (ri.productId===p.id){ ri.productId=null; if(!ri.name) ri.name=p.name; } }); });
+      S.list.forEach(function(it){ if (it.productId===p.id){ it.productId=null; if(!it.name) it.name=p.name; } });
+      save(); renderProducten(); tabBadge();
+    });
+  });
+}
+
+/* ---------- TAB: RECEPTEN ---------- */
+var expandedRecipe = null;
+function renderRecepten(){
+  view.innerHTML =
+  '<div class="card">'+
+    '<h2>Ingrediëntenlijsten <span class="dim">('+S.recipes.length+')</span></h2>'+
+    '<p class="hint">Elke lijst is de ingrediëntenlijst van een gerecht of gelegenheid. Bij 📝 Bestellen zet je zo\u2019n lijst in één tik (of per product) op de boodschappenlijst. Met de ↑- en ↓-knoppen bepaal je jullie eigen volgorde; die zie je ook terug bij 📝 Bestellen.</p>'+
+    '<button class="btn primary" id="newRec">➕ Nieuwe ingrediëntenlijst</button>'+
+  '</div>'+
+  S.recipes.map(function(r, idx){ return recipeCard(r, idx); }).join('');
+  $('#newRec').addEventListener('click', function(){
+    var r = { id:uid('r'), name:'', items:[] };
+    S.recipes.push(r); expandedRecipe = r.id; save(); renderRecepten();
+    var inp = view.querySelector('[data-rname="'+r.id+'"]'); if (inp) inp.focus();
+  });
+  S.recipes.forEach(bindRecipeCard);
+}
+function recipeCard(r, idx){
+  idx = (typeof idx === 'number') ? idx : S.recipes.indexOf(r);
+  var open = expandedRecipe===r.id;
+  var body = '';
+  if (open){
+    body = '<div style="margin-top:10px">'+
+      (r.items.map(function(ri, i){ return recipeRow(ri, i); }).join('') || '<p class="hint">Nog geen ingrediënten. Voeg hieronder rijen toe.</p>')+
+      '<div class="rowflex" style="margin-top:6px">'+
+        '<button class="btn small" data-addrow="'+r.id+'">➕ Rij</button>'+
+        '<button class="btn small" data-newprod="'+r.id+'">➕ Nieuw product</button>'+
+        '<span class="dim" style="font-size:.8rem">Rij = product + aantal + eenheid + opmerking</span>'+
+      '</div>'+
+    '</div>';
+  }
+  return '<div class="card rcard">'+
+    '<div class="rhead">'+
+      (open
+        ? '<input type="text" data-rname="'+r.id+'" value="'+esc(r.name)+'" placeholder="Naam (bijv. Pasta carbonara)" style="flex:1;min-width:160px">'
+        : '<b data-openrec-inline="'+r.id+'" style="flex:1;min-width:0;cursor:pointer;font-size:1rem">'+esc(r.name||'(naamloos)')+' <span class="dim" style="font-size:.8rem">'+r.items.length+' ing.</span></b>')+
+      '<div class="mover">'+
+        '<button class="iconbtn'+(idx>0?'':' ghost')+'" data-mup="'+r.id+'" title="Omhoog">↑</button>'+
+        '<button class="iconbtn'+(idx<S.recipes.length-1?'':' ghost')+'" data-mdown="'+r.id+'" title="Omlaag">↓</button>'+
+      '</div>'+
+      '<button class="btn small" data-openrec="'+r.id+'">'+(open?'▲ Dicht':'▼ Open')+'</button>'+
+      '<button class="iconbtn danger" data-rmrec="'+r.id+'">🗑</button>'+
+    '</div>'+body+
+  '</div>';
+}
+function recipeRow(ri, i){
+  return '<div class="rrow" data-ridx="'+i+'">'+
+    '<select data-f="productId">'+productOptions(ri.productId)+'</select>'+
+    (ri.productId?'':'<input type="text" data-f="name" value="'+esc(ri.name)+'" placeholder="Naam ingrediënt">')+
+    '<input type="text" inputmode="decimal" data-f="amount" value="'+esc(fmtNum(ri.amount))+'" placeholder="aantal">'+
+    '<input type="text" data-f="unit" list="units" value="'+esc(ri.unit)+'" placeholder="eenheid">'+
+    '<input type="text" data-f="comment" value="'+esc(ri.comment)+'" placeholder="opmerking">'+
+    '<button class="iconbtn danger" data-rmrow="'+i+'">✕</button>'+
+  '</div>';
+}
+function productOptions(selId){
+  var out = '<option value="__free__"'+(selId?'':' selected')+'>✎ vrij item</option>';
+  S.products.slice().sort(function(a,b){ return a.name.localeCompare(b.name,'nl'); }).forEach(function(p){
+    out += '<option value="'+p.id+'"'+(p.id===selId?' selected':'')+'>'+esc(p.name)+'</option>';
+  });
+  return out;
+}
+function bindRecipeCard(r){
+  var up = view.querySelector('[data-mup="'+r.id+'"]');
+  if (up) up.addEventListener('click', function(){
+    if (moveRecipe(r.id, -1)) renderRecepten();
+  });
+  var down = view.querySelector('[data-mdown="'+r.id+'"]');
+  if (down) down.addEventListener('click', function(){
+    if (moveRecipe(r.id, 1)) renderRecepten();
+  });
+  view.querySelectorAll('[data-openrec="'+r.id+'"]').forEach(function(b){
+    b.addEventListener('click', function(){
+      expandedRecipe = (expandedRecipe===r.id) ? null : r.id;
+      renderRecepten();
+    });
+  });
+  var inline = view.querySelector('[data-openrec-inline="'+r.id+'"]');
+  if (inline) inline.addEventListener('click', function(){
+    expandedRecipe = r.id; renderRecepten();
+  });
+  var nameInp = view.querySelector('[data-rname="'+r.id+'"]');
+  if (nameInp) nameInp.addEventListener('change', function(){ r.name = nameInp.value; save(); });
+  view.querySelectorAll('[data-rmrec="'+r.id+'"]').forEach(function(b){
+    b.addEventListener('click', function(){
+      if (!confirm('"'+(r.name||'deze lijst')+'" verwijderen?')) return;
+      S.recipes = S.recipes.filter(function(x){ return x.id!==r.id; });
+      if (expandedRecipe===r.id) expandedRecipe=null;
+      save(); renderRecepten();
+    });
+  });
+  view.querySelectorAll('[data-addrow="'+r.id+'"]').forEach(function(b){
+    b.addEventListener('click', function(){
+      r.items.push({ productId:null, name:'', amount:'', unit:'', comment:'' });
+      save(); renderRecepten();
+    });
+  });
+  view.querySelectorAll('[data-newprod="'+r.id+'"]').forEach(function(b){
+    b.addEventListener('click', function(){
+      openProductModal(null, function(p){
+        r.items.push({ productId:p.id, name:p.name, amount:'', unit:p.unit||'', comment:'' });
+        save(); renderRecepten();
+      });
+    });
+  });
+  view.querySelectorAll('.rrow').forEach(function(rowEl){
+    if (rowEl.dataset.bound) return;
+    rowEl.dataset.bound = '1';
+    var rid = rowEl.closest('.rcard') ? rowEl.closest('.rcard').querySelector('[data-rmrec]').dataset.rmrec : null;
+    var rec = recipeById(rid); if (!rec) return;
+    var ri = rec.items[Number(rowEl.dataset.ridx)];
+    if (!ri) return;
+    rowEl.querySelectorAll('[data-f]').forEach(function(inp){
+      inp.addEventListener('change', function(){
+        var f = inp.dataset.f;
+        if (f==='productId'){
+          if (inp.value==='__free__'){ ri.productId=null; if(!ri.name) ri.name=''; }
+          else { var p = prodById(inp.value); ri.productId=inp.value; if (p){ ri.name=p.name; if(!ri.unit) ri.unit=p.unit||''; } }
+          save(); renderRecepten(); return;
+        }
+        if (f==='amount'){ var n = num(inp.value); if (n!=null) ri.amount = n; }
+        else ri[f] = inp.value;
+        save();
+      });
+    });
+    rowEl.querySelector('[data-rmrow]').addEventListener('click', function(){
+      rec.items.splice(Number(rowEl.dataset.ridx), 1);
+      save(); renderRecepten();
+    });
+  });
+}
+
+/* ---------- TAB: WINKELS ---------- */
+function renderWinkels(){
+  view.innerHTML =
+  '<div class="card">'+
+    '<h2>Winkels & looproute</h2>'+
+    '<p class="hint">Leg hier per winkel vast in welke volgorde je loopt. De nummers bepalen de volgorde op de boodschappenlijst: begin van de winkel bovenaan, kassa onderaan.</p>'+
+  '</div>'+
+  S.stores.map(function(s){ return storeCardHtml(s); }).join('')+
+  '<div class="card">'+
+    '<h2>Nieuwe winkel</h2>'+
+    '<div class="rowflex"><input type="text" id="newStoreName" placeholder="Naam winkel" style="flex:1;min-width:150px">'+
+    '<button class="btn primary" id="addStoreBtn">➕ Toevoegen</button></div>'+
+  '</div>';
+  S.stores.forEach(bindStoreCard);
+  $('#addStoreBtn').addEventListener('click', function(){
+    var nm = $('#newStoreName').value.trim();
+    if (!nm){ toast('Vul een naam in'); return; }
+    S.stores.push({ id:uid('st'), name:nm, locations:[] });
+    save(); renderWinkels();
+  });
+}
+function storeCardHtml(s){
+  return '<div class="card" data-store="'+s.id+'">'+
+    '<div class="rowflex" style="margin-bottom:8px">'+
+      '<input type="text" value="'+esc(s.name)+'" data-sname="'+s.id+'" style="flex:1;min-width:150px;font-weight:700">'+
+      '<button class="iconbtn danger" data-rmstore="'+s.id+'">🗑</button>'+
+    '</div>'+
+    '<ul class="loclist">'+
+      s.locations.map(function(l, i){
+        return '<li><span class="locnr">'+(i+1)+'</span>'+
+          '<input type="text" value="'+esc(l.name)+'" data-lname="'+s.id+'|'+l.id+'" placeholder="Afdeling">'+
+          '<button class="iconbtn" data-locup="'+i+'">↑</button>'+
+          '<button class="iconbtn" data-locdown="'+i+'">↓</button>'+
+          '<button class="iconbtn danger" data-rmloc="'+l.id+'">✕</button>'+
+        '</li>';
+      }).join('')+
+    '</ul>'+
+    '<div class="rowflex" style="margin-top:8px">'+
+      '<input type="text" id="newloc-'+s.id+'" placeholder="Nieuwe afdeling (bijv. Bakkerij)" style="flex:1;min-width:150px">'+
+      '<button class="btn" data-addloc="'+s.id+'">➕ Afdeling</button>'+
+    '</div>'+
+  '</div>';
+}
+function bindStoreCard(s){
+  var card = view.querySelector('[data-store="'+s.id+'"]');
+  if (!card) return;
+  card.querySelector('[data-sname]').addEventListener('change', function(e){ s.name = e.target.value; save(); });
+  card.querySelectorAll('[data-lname]').forEach(function(inp){
+    inp.addEventListener('change', function(){
+      var parts = inp.dataset.lname.split('|');
+      var l = locById(parts[0], parts[1]);
+      if (l){ l.name = inp.value.trim() || l.name; inp.value = l.name; save(); }
+    });
+  });
+  card.querySelectorAll('[data-locup]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var i = Number(b.dataset.locup); if (i<=0) return;
+      var t = s.locations[i-1]; s.locations[i-1]=s.locations[i]; s.locations[i]=t;
+      save(); renderWinkels();
+    });
+  });
+  card.querySelectorAll('[data-locdown]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var i = Number(b.dataset.locdown); if (i>=s.locations.length-1) return;
+      var t = s.locations[i+1]; s.locations[i+1]=s.locations[i]; s.locations[i]=t;
+      save(); renderWinkels();
+    });
+  });
+  card.querySelectorAll('[data-rmloc]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var l = locById(s.id, b.dataset.rmloc); if (!l) return;
+      if (!confirm('Afdeling "'+l.name+'" verwijderen? Producten komen dan bij "zonder vaste plek".')) return;
+      s.locations = s.locations.filter(function(x){ return x.id!==l.id; });
+      S.products.forEach(function(p){ if (p.storeId===s.id && p.locationId===l.id) p.locationId=null; });
+      S.list.forEach(function(it){ if (it.storeId===s.id && it.locationId===l.id) it.locationId=null; });
+      save(); renderWinkels();
+    });
+  });
+  card.querySelectorAll('[data-addloc]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var inp = card.querySelector('[id^="newloc-"]');
+      var val = inp ? inp.value.trim() : '';
+      if (!val){ toast('Vul een naam in'); return; }
+      s.locations.push({ id:uid('loc'), name:val });
+      save(); renderWinkels();
+    });
+  });
+  card.querySelector('[data-rmstore]').addEventListener('click', function(){
+    if (!confirm('Winkel "'+s.name+'" verwijderen? Producten blijven bestaan maar krijgen geen winkel meer.')) return;
+    S.stores = S.stores.filter(function(x){ return x.id!==s.id; });
+    S.products.forEach(function(p){ if (p.storeId===s.id){ p.storeId=null; p.locationId=null; } });
+    S.list.forEach(function(it){ if (it.storeId===s.id){ it.storeId=null; it.locationId=null; } });
+    save(); renderWinkels();
+  });
+}
+
+/* ---------- synchronisatie tussen telefoons ( privé-opslag op GitHub ) ---------- */
+var SYNC = { on:false, token:'', owner:'', repo:'', file:'data.json', branch:'main' };
+var DEV = 'onbekend-toestel';
+var SYNC_SEEN_SHA = '';
+var syncBusy = false, syncDirtyFlag = false, syncTimer = null, pushTimer = null;
+var pendingSyncState = null;
+var lastSyncAt = 0;
+try {
+  var scfg = JSON.parse(localStorage.getItem('boodschappen-app-sync') || 'null');
+  if (scfg && scfg.token){
+    SYNC.on = true; SYNC.token = scfg.token; SYNC.owner = scfg.owner || ''; SYNC.repo = scfg.repo || ''; SYNC.branch = scfg.branch || 'main';
+  }
+  var dvc = localStorage.getItem('boodschappen-app-device');
+  if (dvc){ DEV = dvc; }
+  else { DEV = 'tel-' + new Date().getTime().toString(36) + Math.floor(Math.random()*1679615).toString(36); localStorage.setItem('boodschappen-app-device', DEV); }
+  SYNC_SEEN_SHA = localStorage.getItem('boodschappen-app-seensha') || '';
+} catch(e){}
+
+function syncSafeParse(s){ try { return JSON.parse(s); } catch(e){ return null; } }
+function syncB64dec(b64){
+  var bin = atob(String(b64).replace(/\s/g, ''));
+  try { return decodeURIComponent(escape(bin)); } catch(e){ return bin; }
+}
+function syncB64enc(str){ return btoa(unescape(encodeURIComponent(str))); }
+function syncHeaders(extra){
+  var h = { 'Authorization':'Bearer ' + SYNC.token, 'Accept':'application/vnd.github+json' };
+  for (var k in (extra||{})) h[k] = extra[k];
+  return h;
+}
+function syncDot(state){
+  var d = document.getElementById('syncdot'); if (!d) return;
+  if (!SYNC.on){ d.style.display = 'none'; return; }
+  d.style.display = 'inline-block';
+  d.title = 'Synchroniseren: ' + state;
+  d.style.background = state==='fout' ? 'var(--danger)' : state==='bezig' ? 'var(--warn)' : state==='ok' ? 'var(--accent)' : '#cfd6d0';
+}
+function syncPersist(){
+  try { localStorage.setItem('boodschappen-app-sync', JSON.stringify({ token:SYNC.token, owner:SYNC.owner, repo:SYNC.repo, branch:SYNC.branch })); } catch(e){}
+}
+function syncSeenSave(){ try { localStorage.setItem('boodschappen-app-seensha', SYNC_SEEN_SHA || ''); } catch(e){} }
+
+function syncKeyOf(it){ return (it.productId || it.id || it.name || '') + '|' + (it.unit || ''); }
+function syncMerge(local, remote){
+  var out = normalizeState(JSON.parse(JSON.stringify(remote)));
+  var byId = {};
+  ['stores','products','recipes'].forEach(function(k){
+    byId[k] = {};
+    out[k].forEach(function(x){ byId[k][x.id] = x; });
+    local[k].forEach(function(x){
+      if (!x || !x.id) return;
+      if (byId[k][x.id]){ out[k][out[k].indexOf(byId[k][x.id])] = x; byId[k][x.id] = x; }
+      else { out[k].push(x); byId[k][x.id] = x; }
+    });
+  });
+  var seenL = {}, mergedList = [];
+  local.list.forEach(function(it){ if (!seenL[syncKeyOf(it)]){ mergedList.push(it); seenL[syncKeyOf(it)] = 1; } });
+  remote.list.forEach(function(it){ if (!seenL[syncKeyOf(it)]){ mergedList.push(it); seenL[syncKeyOf(it)] = 1; } });
+  out.list = mergedList;
+  out.recent = mergeRecent(local.recent||[], remote.recent||[]);
+  out.appVersion = Math.max((local.appVersion||1),(remote.appVersion||1));
+  out.savedAt = Math.max((local.savedAt||0),(remote.savedAt||0));
+  out.rev = Math.max((local.rev||0),(remote.rev||0));
+  return out;
+}
+function syncApply(remote){
+  var merged = syncMerge(S, remote);
+  if (modalHost && !modalHost.hidden){ pendingSyncState = merged; return; } /* pas nadat het venster gesloten is */
+  var changed = JSON.stringify(merged) !== JSON.stringify(S);
+  S = merged;
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){}
+  if (changed) render();
+}
+function ghGetRemote(useEtag){
+  var h = syncHeaders();
+  if (useEtag && SYNC_SEEN_SHA) h['If-None-Match'] = SYNC_SEEN_SHA;
+  return fetch('https://api.github.com/repos/' + SYNC.owner + '/' + SYNC.repo + '/contents/' + SYNC.file, { headers:h, cache:'no-store' })
+    .then(function(r){
+      if (r.status === 304) return { code:304 };
+      if (r.status === 404) return { code:404 };
+      if (!r.ok) throw new Error('GitHub-status ' + r.status);
+      return r.json().then(function(j){ return { code:200, sha:j.sha, raw:syncB64dec(j.content) }; });
+    });
+}
+function ghPutRemote(json, sha, attempt){
+  var body = { message:'Boodschappenlijst vanaf ' + DEV, branch:SYNC.branch, content:syncB64enc(json) };
+  if (sha) body.sha = sha;
+  return fetch('https://api.github.com/repos/' + SYNC.owner + '/' + SYNC.repo + '/contents/' + SYNC.file, { method:'PUT', headers:syncHeaders(), body:JSON.stringify(body) })
+    .then(function(r){
+      if (r.status===409 || r.status===422){
+        if (attempt > 0){ return ghGetRemote(false).then(function(g){ return ghPutRemote(json, g.code===200 ? g.sha : sha, attempt-1); }); }
+        return { ok:false };
+      }
+      if (!r.ok) return { ok:false };
+      return { ok:true };
+    })
+    .catch(function(){ return { ok:false }; });
+}
+function schedulePush(){
+  if (!SYNC.on || typeof fetch !== 'function') return;
+  syncDirtyFlag = true; syncDot('wacht');
+  if (!pushTimer) pushTimer = window.setTimeout(function(){ pushTimer = null; pushSync(); }, 2000);
+}
+function pushSync(attempt){
+  if (!SYNC.on || typeof fetch !== 'function') return;
+  if (syncBusy){ schedulePush(); return; }
+  syncBusy = true; syncDot('bezig');
+  ghGetRemote(false).then(function(g){
+    var payloadState;
+    if (g.code===200){
+      var remote = syncSafeParse(g.raw);
+      payloadState = remote ? syncMerge(normalizeState(S), normalizeState(remote)) : normalizeState(S);
+      var changed = JSON.stringify(payloadState) !== JSON.stringify(S);
+      S = payloadState;
+      try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){}
+      if (changed && (!modalHost || modalHost.hidden)) render();
+    } else {
+      payloadState = normalizeState(S);
+    }
+    var json = JSON.stringify(payloadState);
+    ghPutRemote(json, g.code===200 ? g.sha : null, attempt||2).then(function(res){
+      syncBusy = false;
+      if (res.ok){ syncDirtyFlag = false; lastSyncAt = Date.now(); syncDot('ok'); }
+      else { syncDot('fout'); schedulePush(); }
+    });
+  }).catch(function(){ syncBusy = false; syncDot('fout'); schedulePush(); });
+}
+function pullSync(){
+  if (!SYNC.on || typeof fetch !== 'function' || syncBusy) return;
+  syncBusy = true; syncDot('bezig');
+  ghGetRemote(true).then(function(g){
+    syncBusy = false;
+    if (g.code===304){ lastSyncAt = Date.now(); syncDot(syncDirtyFlag ? 'wacht' : 'ok'); return; }
+    if (g.code===404){ syncDot('wacht'); return; } /* nog niets op GitHub: de volgende opslag maakt het bestand aan */
+    SYNC_SEEN_SHA = g.sha; syncSeenSave();
+    lastSyncAt = Date.now();
+    var remote = syncSafeParse(g.raw);
+    if (remote && !syncDirtyFlag) syncApply(normalizeState(remote)); /* eigen wijzigingen nog niet verzonden: de push doet de samenvoeging */
+    syncDot(syncDirtyFlag ? 'wacht' : 'ok');
+  }).catch(function(){ syncBusy = false; syncDot('fout'); });
+}
+function startSyncTimer(){
+  if (syncTimer || !SYNC.on) return;
+  syncTimer = window.setInterval(function(){
+    if (!SYNC.on) return;
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return;
+    if (document.hidden) return;
+    pullSync();
+  }, 5000);
+}
+function initSync(){
+  if (!SYNC.on || typeof fetch !== 'function'){ syncDot('uit'); return; }
+  syncDot(syncDirtyFlag ? 'wacht' : 'ok');
+  startSyncTimer();
+  if (typeof navigator === 'undefined' || navigator.onLine !== false) pullSync();
+}
+function syncFetchUser(token){
+  return fetch('https://api.github.com/user', { headers:{ 'Authorization':'Bearer ' + token, 'Accept':'application/vnd.github+json' } })
+    .then(function(r){ if (!r.ok) throw new Error('token geweigerd'); return r.json(); });
+}
+function syncTestRepo(token, owner, repo){
+  return fetch('https://api.github.com/repos/' + owner + '/' + repo, { headers:{ 'Authorization':'Bearer ' + token, 'Accept':'application/vnd.github+json' } })
+    .then(function(r){ if (!r.ok) throw new Error('privé-opslag niet gevonden'); return r.json(); });
+}
+function openSyncWindow(){
+  var lastTxt = lastSyncAt ? ('Laatst gesynchroniseerd om ' + new Date(lastSyncAt).toLocaleTimeString('nl-NL')) : 'Nog niet gesynchroniseerd op dit toestel.';
+  var card = openModal(
+    '<h3>🔄 Synchroniseren tussen telefoons</h3>'+
+    '<p class="hint">Alles wat je invult (boodschappenlijst, producten, winkels, ingrediëntenlijsten) wordt via een privé-opslag op GitHub gedeeld met het andere toestel: wijzigingen verschijnen daar binnen enkele seconden. Werkt ook even zonder internet; alles wordt aangevuld zodra er weer verbinding is.</p>'+
+    '<div class="field"><label>GitHub-token (plak hier je personal access token)</label><input type="password" id="sy-token" placeholder="github_pat_..."></div>'+
+    '<div class="field"><label>Privé-opslag (repo) met de gegevens</label><input type="text" id="sy-repo" value="'+esc(SYNC.repo || 'boodschappenlijst-data')+'"></div>'+
+    '<button class="btn primary" id="sy-test">Verbinding testen en gebruiken</button>'+
+    '<button class="btn" id="sy-now">🔄 Nu synchroniseren</button>'+
+    '<button class="btn danger" id="sy-off">Synchronisatie uitzetten</button>'+
+    '<hr class="sep">'+
+    '<p class="hint" id="sy-status">'+ (SYNC.on ? 'Status: verbonden. ' : 'Status: nog niet ingesteld. ') + esc(lastTxt) +'</p>'+
+    '<p class="hint"><b>Token maken (eenmalig, op de computer)</b><br>'+
+    '1. Ga op github.com rechtsboven naar je foto → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.<br>'+
+    '2. Kies bij Repository access: Only select repositories → <i>boodschappenlijst-data</i>.<br>'+
+    '3. Zet bij Permissions → Repository permissions → Contents op <b>Read and write</b> en genereer de token.<br>'+
+    '4. Kopieer de token (begint met github_pat_) en plak die hierboven. Herhaal dit op het andere toestel met dezelfde of een eigen token.</p>'
+  );
+  card.querySelector('#sy-test').addEventListener('click', function(){
+    var token = card.querySelector('#sy-token').value.trim();
+    var repo = card.querySelector('#sy-repo').value.trim();
+    var stat = card.querySelector('#sy-status');
+    if (!token){ stat.textContent = 'Plak eerst je token.'; return; }
+    stat.textContent = 'Verbinding testen...';
+    syncFetchUser(token).then(function(me){
+      return syncTestRepo(token, me.login, repo).then(function(){
+        SYNC.on = true; SYNC.token = token; SYNC.owner = me.login; SYNC.repo = repo; SYNC.branch = 'main';
+        syncPersist(); syncDot('ok'); startSyncTimer();
+        stat.textContent = 'Verbonden als ' + me.login + '. Synchroniseren staat aan voor ' + repo + '.';
+        toast('Synchronisatie aangezet');
+        pushSync();
+      });
+    }).catch(function(e){
+      stat.textContent = 'Dat lukte niet: ' + (e && e.message ? e.message : 'onbekende fout') + '.';
+    });
+  });
+  card.querySelector('#sy-now').addEventListener('click', function(){
+    if (!SYNC.on){ toast('Zet eerst de synchronisatie aan met je token'); return; }
+    schedulePush(); pullSync();
+    toast('Synchroniseren...');
+  });
+  card.querySelector('#sy-off').addEventListener('click', function(){
+    SYNC.on = false; SYNC.token = ''; syncPersist();
+    if (syncTimer){ window.clearInterval(syncTimer); syncTimer = null; }
+    syncDot('uit'); toast('Synchronisatie uitgezet op dit toestel');
+    card.querySelector('#sy-status').textContent = 'Status: uitgezet op dit toestel.';
+  });
+}
+
+/* ---------- iPhone: kop- en tabbalk meten voor plakkende-offsets ---------- */
+function syncChrome(){
+  try {
+    var hd = document.querySelector('header.top');
+    var tb = document.getElementById('tabs');
+    var rt = document.documentElement;
+    if (!hd || !tb || !rt.style || !rt.style.setProperty) return;
+    rt.style.setProperty('--head-h', hd.offsetHeight + 'px');
+    rt.style.setProperty('--tabs-h', tb.offsetHeight + 'px');
+  } catch(e){}
+}
+if (typeof window.addEventListener === 'function'){
+  window.addEventListener('resize', syncChrome);
+  window.addEventListener('orientationchange', syncChrome);
+}
+
+/* ---------- start ---------- */
+render();
+syncChrome();
+initSync();
+})();
+</script>
+</body>
+</html>
