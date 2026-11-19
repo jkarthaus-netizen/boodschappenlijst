@@ -17,7 +17,7 @@
   :root{
     --bg:#f4f2ed; --card:#ffffff; --ink:#1c2420; --muted:#7c8680; --line:#e5e1d9;
     --accent:#2e7d46; --accent-soft:#e6f2e8; --danger:#b3402f; --warn:#8a6d1f;
-    --head-h:52px; --tabs-h:48px;
+    --tabs-h:48px;
     font-size:16px;
   }
   *{ box-sizing:border-box; }
@@ -31,25 +31,18 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
     -webkit-font-smoothing:antialiased;
     padding-bottom:60px;
-    padding-bottom:calc(var(--head-h) + 30px);
+    padding-bottom:calc(78px + env(safe-area-inset-bottom,0px));
   }
-  header.top{
-    position:fixed; bottom:0; left:0; right:0; z-index:30;
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    background:rgba(255,255,255,.96); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
-    padding:10px 14px;
-    padding-left:max(14px, env(safe-area-inset-left,0px));
-    padding-right:max(14px, env(safe-area-inset-right,0px));
-    padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
-    border-top:1px solid var(--line);
+  .fabmenu{
+    position:fixed; z-index:30; right:max(14px, env(safe-area-inset-right,0px));
+    bottom:calc(14px + env(safe-area-inset-bottom,0px));
+    width:48px; height:48px; border-radius:16px; font-size:1.35rem; line-height:1;
+    border:1px solid var(--line); background:rgba(255,255,255,.96); cursor:pointer;
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    box-shadow:0 4px 14px rgba(28,36,32,.14);
+    display:flex; align-items:center; justify-content:center; padding:0; color:var(--ink);
   }
-  .brand{ font-weight:800; font-size:1.05rem; letter-spacing:-.02em; }
-  .brand span{ color:var(--accent); }
-  .vbadge{
-    font-size:.68rem; font-weight:800; color:var(--muted);
-    background:#eef1ee; border-radius:99px; padding:2px 8px; vertical-align:middle;
-  }
-  .top-actions{ display:flex; gap:8px; }
+  .fabmenu:active{ transform:scale(.96); }
   nav.tabs{
     position:sticky; top:0; z-index:29;
     display:flex; overflow-x:auto; -webkit-overflow-scrolling:touch;
@@ -202,7 +195,7 @@
   .menuwindow button{ width:100%; margin-bottom:8px; }
   #toast{
     position:fixed; left:50%; bottom:22px;
-    bottom:calc(var(--head-h) + 30px); transform:translateX(-50%);
+    bottom:calc(76px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%);
     background:var(--ink); color:#fff; border-radius:12px; padding:10px 16px; font-size:.9rem;
     opacity:0; transition:opacity .25s; z-index:60; pointer-events:none; max-width:85vw; text-align:center;
   }
@@ -210,14 +203,10 @@
   .dim{ color:var(--muted); }
   hr.sep{ border:0; border-top:1px solid var(--line); margin:14px 0; }
   .syncdot{
-    width:11px; height:11px; border-radius:99px; background:#cfd6d0;
-    display:none; flex:0 0 auto; align-self:center; cursor:pointer;
-  }
-  /* iPhone: compacte kop op kleine schermen (iPhone SE, 375pt) */
-  @media (max-width:429px){
-    .brand{ font-size:1rem; }
-    .top-actions .btn.small{ padding:6px 9px; }
-    .svtxt{ display:none; }
+    position:fixed; z-index:30; left:max(16px, env(safe-area-inset-left,0px));
+    bottom:calc(31px + env(safe-area-inset-bottom,0px));
+    width:14px; height:14px; border-radius:99px; background:#cfd6d0;
+    display:none; cursor:pointer;
   }
   /* iPhone: ruimere tekst op grote toestellen (iPhone 16 Pro Max, 440pt) */
   @media (min-width:430px){ :root{ font-size:17px; } }
@@ -232,14 +221,8 @@
   <button class="tabbtn" data-tab="winkels">🏪 Winkels &amp; route</button>
 </nav>
 <main id="view"></main>
-<header class="top">
-  <div class="brand">🛒 Ons <span>Boodschappenlijstje</span> <span class="vbadge" id="versionBadge">v26</span></div>
-  <div class="top-actions">
-    <span class="syncdot" id="syncdot"></span>
-    <button class="btn primary small" id="saveAppBtn" title="Sla dit bestand inclusief alle lijsten op als HTML">💾 <span class="svtxt">Opslaan</span></button>
-    <button class="btn small" id="menuBtn" title="Gegevens &amp; help">⋯</button>
-  </div>
-</header>
+<span class="syncdot" id="syncdot"></span>
+<button class="fabmenu" id="menuBtn" title="Gegevens, synchroniseren, reservekopie">⋯</button>
 <datalist id="units">
   <option>stuk</option><option>stuks</option><option>gram</option><option>kg</option>
   <option>liter</option><option>ml</option><option>pak</option><option>pakken</option>
@@ -256,7 +239,7 @@
 </datalist>
 <div id="toast"></div>
 
-<script id="app-data" type="application/json">{"version":1,"savedAt":0,"routeStore":"","stores":[{"id":"st-lidl","name":"Lidl Zierikzee","locations":[{"id":"loc-l-1","name":"Bakkerij (direct bij de ingang)"},{"id":"loc-l-2","name":"Groente & fruit"},{"id":"loc-l-3","name":"Vlees, vis & vleeswaren"},{"id":"loc-l-4","name":"Kaas & tapas (tapashoek)"},{"id":"loc-l-5","name":"Zuivel, eieren & koelvers"},{"id":"loc-l-6","name":"Ontbijt & broodbeleg"},{"id":"loc-l-7","name":"Pasta, rijst & conserven"},{"id":"loc-l-8","name":"Soepen, sauzen & kruiden"},{"id":"loc-l-9","name":"Koek, snoep & chips"},{"id":"loc-l-10","name":"Water, frisdrank & sappen"},{"id":"loc-l-11","name":"Bier & wijn"},{"id":"loc-l-12","name":"Huishouden & verzorging"},{"id":"loc-l-13","name":"Non-food & acties (middenpad)"},{"id":"loc-l-14","name":"Diepvries (achterin, richting kassa's)"},{"id":"loc-l-15","name":"Kassa's"}]},{"id":"st-ah-zierikzee","name":"Albert Heijn Haringvlietplein","locations":[{"id":"loc-ahz-1","name":"Groente & fruit (bij binnenkomst)"},{"id":"loc-ahz-2","name":"Bakkerij & vers brood"},{"id":"loc-ahz-3","name":"Grill, stomerij & verse maaltijden"},{"id":"loc-ahz-4","name":"Vlees, vis & vleeswaren (bediend)"},{"id":"loc-ahz-5","name":"Kaas"},{"id":"loc-ahz-6","name":"Zuivel, eieren & koelvers"},{"id":"loc-ahz-7","name":"Diepvries"},{"id":"loc-ahz-8","name":"Ontbijt & broodbeleg"},{"id":"loc-ahz-9","name":"Pasta, rijst & wereldkeuken"},{"id":"loc-ahz-10","name":"Soepen, sauzen, kruiden & conserven"},{"id":"loc-ahz-11","name":"Koek, chocolade & snoep"},{"id":"loc-ahz-12","name":"Chips & zoutjes"},{"id":"loc-ahz-13","name":"Koffie & thee"},{"id":"loc-ahz-14","name":"Water, frisdrank & sappen"},{"id":"loc-ahz-15","name":"Bier & wijn"},{"id":"loc-ahz-16","name":"Huishouden, verzorging & dier"},{"id":"loc-ahz-17","name":"Non-food & acties"},{"id":"loc-ahz-18","name":"Kassa's & zelfscan"}]}],"products":[{"id":"p-melk","name":"Melk halfvol","unit":"l","storeId":"st-lidl","locationId":"loc-l-5","comment":""},{"id":"p-ei","name":"Eieren (vrijloop)","unit":"stuks","storeId":"st-lidl","locationId":"loc-l-5","comment":""},{"id":"p-tomaat","name":"Trostomaten","unit":"kg","storeId":"st-lidl","locationId":"loc-l-2","comment":""},{"id":"p-brood","name":"Boerenbrood","unit":"stuk","storeId":"st-lidl","locationId":"loc-l-1","comment":""},{"id":"p-spaghetti","name":"Spaghetti","unit":"g","storeId":"st-lidl","locationId":"loc-l-7","comment":""},{"id":"p-spek","name":"Speckjes","unit":"g","storeId":"st-lidl","locationId":"loc-l-3","comment":""},{"id":"p-parmezaan","name":"Parmezaan","unit":"g","storeId":"st-lidl","locationId":"loc-l-4","comment":""},{"id":"p-boter","name":"Boter","unit":"pak","storeId":"st-lidl","locationId":"loc-l-5","comment":""}],"recipes":[{"id":"r-carb","name":"Pasta carbonara","items":[{"productId":"p-spaghetti","name":"Spaghetti","amount":500,"unit":"g","comment":""},{"productId":"p-spek","name":"Speckjes","amount":150,"unit":"g","comment":""},{"productId":"p-ei","name":"Eieren (vrijloop)","amount":3,"unit":"stuks","comment":""},{"productId":"p-parmezaan","name":"Parmezaan","amount":100,"unit":"g","comment":""}]},{"id":"r-ontbijt","name":"Ontbijt (voorbeeld)","items":[{"productId":"p-melk","name":"Melk halfvol","amount":1,"unit":"l","comment":""},{"productId":"p-brood","name":"Boerenbrood","amount":1,"unit":"stuk","comment":""},{"productId":"p-boter","name":"Boter","amount":1,"unit":"pak","comment":""},{"productId":"p-tomaat","name":"Trostomaten","amount":0.5,"unit":"kg","comment":""}]}],"list":[],"appVersion":26,"recent":[]}</script>
+<script id="app-data" type="application/json">{"version":1,"savedAt":0,"routeStore":"","stores":[{"id":"st-lidl","name":"Lidl Zierikzee","locations":[{"id":"loc-l-1","name":"Bakkerij (direct bij de ingang)"},{"id":"loc-l-2","name":"Groente & fruit"},{"id":"loc-l-3","name":"Vlees, vis & vleeswaren"},{"id":"loc-l-4","name":"Kaas & tapas (tapashoek)"},{"id":"loc-l-5","name":"Zuivel, eieren & koelvers"},{"id":"loc-l-6","name":"Ontbijt & broodbeleg"},{"id":"loc-l-7","name":"Pasta, rijst & conserven"},{"id":"loc-l-8","name":"Soepen, sauzen & kruiden"},{"id":"loc-l-9","name":"Koek, snoep & chips"},{"id":"loc-l-10","name":"Water, frisdrank & sappen"},{"id":"loc-l-11","name":"Bier & wijn"},{"id":"loc-l-12","name":"Huishouden & verzorging"},{"id":"loc-l-13","name":"Non-food & acties (middenpad)"},{"id":"loc-l-14","name":"Diepvries (achterin, richting kassa's)"},{"id":"loc-l-15","name":"Kassa's"}]},{"id":"st-ah-zierikzee","name":"Albert Heijn Haringvlietplein","locations":[{"id":"loc-ahz-1","name":"Groente & fruit (bij binnenkomst)"},{"id":"loc-ahz-2","name":"Bakkerij & vers brood"},{"id":"loc-ahz-3","name":"Grill, stomerij & verse maaltijden"},{"id":"loc-ahz-4","name":"Vlees, vis & vleeswaren (bediend)"},{"id":"loc-ahz-5","name":"Kaas"},{"id":"loc-ahz-6","name":"Zuivel, eieren & koelvers"},{"id":"loc-ahz-7","name":"Diepvries"},{"id":"loc-ahz-8","name":"Ontbijt & broodbeleg"},{"id":"loc-ahz-9","name":"Pasta, rijst & wereldkeuken"},{"id":"loc-ahz-10","name":"Soepen, sauzen, kruiden & conserven"},{"id":"loc-ahz-11","name":"Koek, chocolade & snoep"},{"id":"loc-ahz-12","name":"Chips & zoutjes"},{"id":"loc-ahz-13","name":"Koffie & thee"},{"id":"loc-ahz-14","name":"Water, frisdrank & sappen"},{"id":"loc-ahz-15","name":"Bier & wijn"},{"id":"loc-ahz-16","name":"Huishouden, verzorging & dier"},{"id":"loc-ahz-17","name":"Non-food & acties"},{"id":"loc-ahz-18","name":"Kassa's & zelfscan"}]}],"products":[{"id":"p-melk","name":"Melk halfvol","unit":"l","storeId":"st-lidl","locationId":"loc-l-5","comment":""},{"id":"p-ei","name":"Eieren (vrijloop)","unit":"stuks","storeId":"st-lidl","locationId":"loc-l-5","comment":""},{"id":"p-tomaat","name":"Trostomaten","unit":"kg","storeId":"st-lidl","locationId":"loc-l-2","comment":""},{"id":"p-brood","name":"Boerenbrood","unit":"stuk","storeId":"st-lidl","locationId":"loc-l-1","comment":""},{"id":"p-spaghetti","name":"Spaghetti","unit":"g","storeId":"st-lidl","locationId":"loc-l-7","comment":""},{"id":"p-spek","name":"Speckjes","unit":"g","storeId":"st-lidl","locationId":"loc-l-3","comment":""},{"id":"p-parmezaan","name":"Parmezaan","unit":"g","storeId":"st-lidl","locationId":"loc-l-4","comment":""},{"id":"p-boter","name":"Boter","unit":"pak","storeId":"st-lidl","locationId":"loc-l-5","comment":""}],"recipes":[{"id":"r-carb","name":"Pasta carbonara","items":[{"productId":"p-spaghetti","name":"Spaghetti","amount":500,"unit":"g","comment":""},{"productId":"p-spek","name":"Speckjes","amount":150,"unit":"g","comment":""},{"productId":"p-ei","name":"Eieren (vrijloop)","amount":3,"unit":"stuks","comment":""},{"productId":"p-parmezaan","name":"Parmezaan","amount":100,"unit":"g","comment":""}]},{"id":"r-ontbijt","name":"Ontbijt (voorbeeld)","items":[{"productId":"p-melk","name":"Melk halfvol","amount":1,"unit":"l","comment":""},{"productId":"p-brood","name":"Boerenbrood","amount":1,"unit":"stuk","comment":""},{"productId":"p-boter","name":"Boter","amount":1,"unit":"pak","comment":""},{"productId":"p-tomaat","name":"Trostomaten","amount":0.5,"unit":"kg","comment":""}]}],"list":[],"appVersion":27,"recent":[]}</script>
 <script id="app-main">
 (function(){
 'use strict';
@@ -644,7 +627,7 @@ function openProductModal(p, onSaved){
 
 function openMenu(){
   var card = openModal(
-    '<h3>Gegevens & synchroniseren</h3>'+
+    '<h3>Gegevens &amp; synchroniseren <span class="dim">· v'+(S.appVersion||1)+'</span></h3>'+
     '<button class="btn primary" id="mSaveApp">💾 Opslaan als app (dit bestand + alle lijsten)</button>'+
     '<button class="btn" id="mExport">⬇️ Gegevens exporteren (reservekopie, JSON)</button>'+
     '<button class="btn" id="mImportBtn">⬆️ Gegevens importeren (JSON)</button>'+
@@ -709,7 +692,6 @@ function switchTab(t){ TAB = t; render(); window.scrollTo(0,0); }
 document.getElementById('tabs').addEventListener('click', function(e){
   var b = e.target.closest('.tabbtn'); if (b) switchTab(b.dataset.tab);
 });
-document.getElementById('saveAppBtn').addEventListener('click', saveApp);
 document.getElementById('menuBtn').addEventListener('click', openMenu);
 var syncdotEl = document.getElementById('syncdot');
 if (syncdotEl) syncdotEl.addEventListener('click', openSyncWindow);
@@ -1601,14 +1583,12 @@ function openSyncWindow(){
   });
 }
 
-/* ---------- iPhone: kop- en tabbalk meten voor plakkende-offsets ---------- */
+/* ---------- iPhone: tabbalkhoogte meten voor plakkende-offsets ---------- */
 function syncChrome(){
   try {
-    var hd = document.querySelector('header.top');
     var tb = document.getElementById('tabs');
     var rt = document.documentElement;
-    if (!hd || !tb || !rt.style || !rt.style.setProperty) return;
-    rt.style.setProperty('--head-h', hd.offsetHeight + 'px');
+    if (!tb || !rt.style || !rt.style.setProperty) return;
     rt.style.setProperty('--tabs-h', tb.offsetHeight + 'px');
   } catch(e){}
 }
