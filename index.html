@@ -118,7 +118,7 @@
   .itemrow .qty{ display:flex; gap:4px; align-items:center; flex:0 0 auto; }
   .itemrow .qty input{ width:calc(3ch + 16px); text-align:right; }
   .itemrow .qty input.unit{ width:calc(5ch + 16px); text-align:left; font-size:max(.85rem,16px); }
-  .rowmini{ display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; margin-top:8px; }
+  .rowmini{ display:flex; flex-wrap:nowrap; gap:6px 8px; align-items:center; margin-top:8px; }
   /* compacte invakken: aantal, eenheid, opmerking ca. 30% lager */
   .rowmini input, #cf-amount, #cf-unit, #cf-comment,
   .rrow input[data-f=amount], .rrow input[data-f=unit], .rrow input[data-f=comment]{
@@ -252,7 +252,7 @@
 </datalist>
 <div id="toast"></div>
 
-<script id="app-data" type="application/json">{"version":1,"savedAt":0,"routeStore":"","stores":[{"id":"st-lidl","name":"Lidl Zierikzee","locations":[{"id":"loc-l-1","name":"Bakkerij (direct bij de ingang)"},{"id":"loc-l-2","name":"Groente & fruit"},{"id":"loc-l-3","name":"Vlees, vis & vleeswaren"},{"id":"loc-l-4","name":"Kaas & tapas (tapashoek)"},{"id":"loc-l-5","name":"Zuivel, eieren & koelvers"},{"id":"loc-l-6","name":"Ontbijt & broodbeleg"},{"id":"loc-l-7","name":"Pasta, rijst & conserven"},{"id":"loc-l-8","name":"Soepen, sauzen & kruiden"},{"id":"loc-l-9","name":"Koek, snoep & chips"},{"id":"loc-l-10","name":"Water, frisdrank & sappen"},{"id":"loc-l-11","name":"Bier & wijn"},{"id":"loc-l-12","name":"Huishouden & verzorging"},{"id":"loc-l-13","name":"Non-food & acties (middenpad)"},{"id":"loc-l-14","name":"Diepvries (achterin, richting kassa's)"},{"id":"loc-l-15","name":"Kassa's"}]},{"id":"st-ah-zierikzee","name":"Albert Heijn Haringvlietplein","locations":[{"id":"loc-ahz-1","name":"Groente & fruit (bij binnenkomst)"},{"id":"loc-ahz-2","name":"Bakkerij & vers brood"},{"id":"loc-ahz-3","name":"Grill, stomerij & verse maaltijden"},{"id":"loc-ahz-4","name":"Vlees, vis & vleeswaren (bediend)"},{"id":"loc-ahz-5","name":"Kaas"},{"id":"loc-ahz-6","name":"Zuivel, eieren & koelvers"},{"id":"loc-ahz-7","name":"Diepvries"},{"id":"loc-ahz-8","name":"Ontbijt & broodbeleg"},{"id":"loc-ahz-9","name":"Pasta, rijst & wereldkeuken"},{"id":"loc-ahz-10","name":"Soepen, sauzen, kruiden & conserven"},{"id":"loc-ahz-11","name":"Koek, chocolade & snoep"},{"id":"loc-ahz-12","name":"Chips & zoutjes"},{"id":"loc-ahz-13","name":"Koffie & thee"},{"id":"loc-ahz-14","name":"Water, frisdrank & sappen"},{"id":"loc-ahz-15","name":"Bier & wijn"},{"id":"loc-ahz-16","name":"Huishouden, verzorging & dier"},{"id":"loc-ahz-17","name":"Non-food & acties"},{"id":"loc-ahz-18","name":"Kassa's & zelfscan"}]}],"products":[{"id":"p-melk","name":"Melk halfvol","unit":"l","storeId":"st-lidl","locationId":"loc-l-5","comment":""},{"id":"p-ei","name":"Eieren (vrijloop)","unit":"stuks","storeId":"st-lidl","locationId":"loc-l-5","comment":""},{"id":"p-tomaat","name":"Trostomaten","unit":"kg","storeId":"st-lidl","locationId":"loc-l-2","comment":""},{"id":"p-brood","name":"Boerenbrood","unit":"stuk","storeId":"st-lidl","locationId":"loc-l-1","comment":""},{"id":"p-spaghetti","name":"Spaghetti","unit":"g","storeId":"st-lidl","locationId":"loc-l-7","comment":""},{"id":"p-spek","name":"Speckjes","unit":"g","storeId":"st-lidl","locationId":"loc-l-3","comment":""},{"id":"p-parmezaan","name":"Parmezaan","unit":"g","storeId":"st-lidl","locationId":"loc-l-4","comment":""},{"id":"p-boter","name":"Boter","unit":"pak","storeId":"st-lidl","locationId":"loc-l-5","comment":""}],"recipes":[{"id":"r-carb","name":"Pasta carbonara","items":[{"productId":"p-spaghetti","name":"Spaghetti","amount":500,"unit":"g","comment":""},{"productId":"p-spek","name":"Speckjes","amount":150,"unit":"g","comment":""},{"productId":"p-ei","name":"Eieren (vrijloop)","amount":3,"unit":"stuks","comment":""},{"productId":"p-parmezaan","name":"Parmezaan","amount":100,"unit":"g","comment":""}]},{"id":"r-ontbijt","name":"Ontbijt (voorbeeld)","items":[{"productId":"p-melk","name":"Melk halfvol","amount":1,"unit":"l","comment":""},{"productId":"p-brood","name":"Boerenbrood","amount":1,"unit":"stuk","comment":""},{"productId":"p-boter","name":"Boter","amount":1,"unit":"pak","comment":""},{"productId":"p-tomaat","name":"Trostomaten","amount":0.5,"unit":"kg","comment":""}]}],"list":[],"appVersion":33,"recent":[]}</script>
+<script id="app-data" type="application/json">{"version":1,"savedAt":0,"routeStore":"","stores":[{"id":"st-lidl","name":"Lidl Zierikzee","locations":[{"id":"loc-l-1","name":"Bakkerij (direct bij de ingang)"},{"id":"loc-l-2","name":"Groente & fruit"},{"id":"loc-l-3","name":"Vlees, vis & vleeswaren"},{"id":"loc-l-4","name":"Kaas & tapas (tapashoek)"},{"id":"loc-l-5","name":"Zuivel, eieren & koelvers"},{"id":"loc-l-6","name":"Ontbijt & broodbeleg"},{"id":"loc-l-7","name":"Pasta, rijst & conserven"},{"id":"loc-l-8","name":"Soepen, sauzen & kruiden"},{"id":"loc-l-9","name":"Koek, snoep & chips"},{"id":"loc-l-10","name":"Water, frisdrank & sappen"},{"id":"loc-l-11","name":"Bier & wijn"},{"id":"loc-l-12","name":"Huishouden & verzorging"},{"id":"loc-l-13","name":"Non-food & acties (middenpad)"},{"id":"loc-l-14","name":"Diepvries (achterin, richting kassa's)"},{"id":"loc-l-15","name":"Kassa's"}]},{"id":"st-ah-zierikzee","name":"Albert Heijn Haringvlietplein","locations":[{"id":"loc-ahz-1","name":"Groente & fruit (bij binnenkomst)"},{"id":"loc-ahz-2","name":"Bakkerij & vers brood"},{"id":"loc-ahz-3","name":"Grill, stomerij & verse maaltijden"},{"id":"loc-ahz-4","name":"Vlees, vis & vleeswaren (bediend)"},{"id":"loc-ahz-5","name":"Kaas"},{"id":"loc-ahz-6","name":"Zuivel, eieren & koelvers"},{"id":"loc-ahz-7","name":"Diepvries"},{"id":"loc-ahz-8","name":"Ontbijt & broodbeleg"},{"id":"loc-ahz-9","name":"Pasta, rijst & wereldkeuken"},{"id":"loc-ahz-10","name":"Soepen, sauzen, kruiden & conserven"},{"id":"loc-ahz-11","name":"Koek, chocolade & snoep"},{"id":"loc-ahz-12","name":"Chips & zoutjes"},{"id":"loc-ahz-13","name":"Koffie & thee"},{"id":"loc-ahz-14","name":"Water, frisdrank & sappen"},{"id":"loc-ahz-15","name":"Bier & wijn"},{"id":"loc-ahz-16","name":"Huishouden, verzorging & dier"},{"id":"loc-ahz-17","name":"Non-food & acties"},{"id":"loc-ahz-18","name":"Kassa's & zelfscan"}]}],"products":[{"id":"p-melk","name":"Melk halfvol","unit":"l","storeId":"st-lidl","locationId":"loc-l-5","comment":""},{"id":"p-ei","name":"Eieren (vrijloop)","unit":"stuks","storeId":"st-lidl","locationId":"loc-l-5","comment":""},{"id":"p-tomaat","name":"Trostomaten","unit":"kg","storeId":"st-lidl","locationId":"loc-l-2","comment":""},{"id":"p-brood","name":"Boerenbrood","unit":"stuk","storeId":"st-lidl","locationId":"loc-l-1","comment":""},{"id":"p-spaghetti","name":"Spaghetti","unit":"g","storeId":"st-lidl","locationId":"loc-l-7","comment":""},{"id":"p-spek","name":"Speckjes","unit":"g","storeId":"st-lidl","locationId":"loc-l-3","comment":""},{"id":"p-parmezaan","name":"Parmezaan","unit":"g","storeId":"st-lidl","locationId":"loc-l-4","comment":""},{"id":"p-boter","name":"Boter","unit":"pak","storeId":"st-lidl","locationId":"loc-l-5","comment":""}],"recipes":[{"id":"r-carb","name":"Pasta carbonara","items":[{"productId":"p-spaghetti","name":"Spaghetti","amount":500,"unit":"g","comment":""},{"productId":"p-spek","name":"Speckjes","amount":150,"unit":"g","comment":""},{"productId":"p-ei","name":"Eieren (vrijloop)","amount":3,"unit":"stuks","comment":""},{"productId":"p-parmezaan","name":"Parmezaan","amount":100,"unit":"g","comment":""}]},{"id":"r-ontbijt","name":"Ontbijt (voorbeeld)","items":[{"productId":"p-melk","name":"Melk halfvol","amount":1,"unit":"l","comment":""},{"productId":"p-brood","name":"Boerenbrood","amount":1,"unit":"stuk","comment":""},{"productId":"p-boter","name":"Boter","amount":1,"unit":"pak","comment":""},{"productId":"p-tomaat","name":"Trostomaten","amount":0.5,"unit":"kg","comment":""}]}],"list":[],"appVersion":34,"recent":[]}</script>
 <script id="app-main">
 (function(){
 'use strict';
@@ -861,22 +861,31 @@ function fitInp(inp){
   var vis = Math.max(len, inp.dataset.f==='amount' ? 1 : 3);
   inp.style.width = 'calc(' + (vis + 1) + 'ch + 16px)';
 }
-function openNoteModal(itId){
-  var it = S.list.find(function(x){ return x.id===itId; }); if (!it) return;
-  var res = resolveItem(it);
+function openCommentModal(hint, comment, onOk){
   var card = openModal(
     '<h3>Opmerking</h3>'+
-    '<p class="hint">Bij <b>'+esc(res.name||it.name||'product')+'</b>.</p>'+
+    '<p class="hint">'+hint+'</p>'+
     '<textarea id="noteEdit"></textarea>'+
     '<div class="modalactions"><button class="btn" data-x="cancel">Annuleren</button><button class="btn primary" data-x="ok">OK</button></div>'
   );
   var ta = card.querySelector('#noteEdit');
-  ta.value = it.comment || '';
+  ta.value = comment || '';
   card.querySelector('[data-x=cancel]').addEventListener('click', closeModal);
-  card.querySelector('[data-x=ok]').addEventListener('click', function(){
-    it.comment = ta.value.trim(); save(); closeModal(); refreshBasket();
-  });
+  card.querySelector('[data-x=ok]').addEventListener('click', function(){ onOk(ta.value.trim()); closeModal(); });
   if (ta.focus) ta.focus();
+}
+function openNoteModal(itId){
+  var it = S.list.find(function(x){ return x.id===itId; }); if (!it) return;
+  var res = resolveItem(it);
+  openCommentModal('Bij <b>'+esc(res.name||it.name||'product')+'</b>.', it.comment, function(v){
+    it.comment = v; save(); refreshBasket();
+  });
+}
+function openRecNoteModal(ri, recName, after){
+  var nm = ri.productId ? ((prodById(ri.productId)||{}).name||'') : (ri.name||'');
+  openCommentModal('Bij <b>'+esc(nm||'ingrediënt')+'</b> in <b>'+esc(recName||'lijst')+'</b>.', ri.comment, function(v){
+    ri.comment = v; save(); if (after) after();
+  });
 }
 function refreshBasket(){
   var box = $('#basketBox'); if (!box) return;
@@ -1191,7 +1200,7 @@ function recipeRow(ri, i){
           '<input type="text" inputmode="decimal" data-f="amount" value="'+esc(fmtNum(ri.amount))+'" placeholder="aantal">'+
           '<input type="text" class="unit" list="units" data-f="unit" value="'+esc(ri.unit)+'" placeholder="eenheid">'+
         '</div>'+
-        '<input type="text" class="note" data-f="comment" value="'+esc(ri.comment)+'" placeholder="opmerking">'+
+        '<input type="text" class="note" readonly value="'+esc(ri.comment)+'" placeholder="opmerking…">'+
       '</div>'+
     '</div>'+
     '<button class="iconbtn danger" data-rmrow="'+i+'">🗑</button>'+
@@ -1266,7 +1275,13 @@ function bindRecipeCard(r){
         else ri[f] = inp.value;
         save();
       });
+      if (inp.dataset.f==='amount' || inp.dataset.f==='unit'){
+        fitInp(inp);
+        inp.addEventListener('input', function(){ fitInp(inp); });
+      }
     });
+    var noteInp = rowEl.querySelector('.note');
+    if (noteInp) noteInp.addEventListener('click', function(){ openRecNoteModal(ri, rec.name, renderRecepten); });
     rowEl.querySelector('[data-rmrow]').addEventListener('click', function(){
       rec.items.splice(Number(rowEl.dataset.ridx), 1);
       save(); renderRecepten();
